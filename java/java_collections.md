@@ -1,7 +1,7 @@
 ## Java 集合总结
 
-![image](/pic/00.png)
-![image](/pic/01.png)
+![image](pic/00.png)
+![image](pic/01.png)
 
 * HashMap：发生哈希冲突的Node会加入到链表的最下端；哈希冲突过多的情况下链表会**变成红黑树**从而保证效率；非同步，不保证顺序。允许有空值和空键。
 * LinkedHashMap：继承HashMap，Iterator下能保证插入的先后顺序，原理是在LinkedHashMap中加入了链表，并且该链表还是一个双向链表。迭代访问时比HashMap更快。
@@ -82,7 +82,7 @@ static final int hash(Object key) {
 }
 ```
 
-![image](/pic/02.png)
+![image](pic/02.png)
 
 可以看到这个函数大概的作用就是：高16bit不变，低16bit和高16bit做了一个异或。
 
