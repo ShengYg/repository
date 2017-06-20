@@ -6,12 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>ShengYg's Blog</title>
-  <meta name="description" content="Step after step the ladder is ascended.
-">
+  <title>Complete Guide to Parameter Tuning in GBM and Xgboost</title>
+  <meta name="description" content="Table of Contents  How Boosting Works  Understanding GBM Parameters  Tuning Parameters">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="https://shengyg.github.io/repository//">
+  <link rel="canonical" href="https://shengyg.github.io/repository//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning.html">
   <link rel="alternate" type="application/rss+xml" title="ShengYg's Blog" href="https://shengyg.github.io/repository//feed.xml">
 </head>
 
@@ -51,41 +50,41 @@
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Complete Guide to Parameter Tuning in GBM and Xgboost</h1>
+    <p class="post-meta"><time datetime="2017-06-19T10:00:00+08:00" itemprop="datePublished">Jun 19, 2017</time></p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Jun 19, 2017</span>
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+  <li>How Boosting Works</li>
+  <li>Understanding GBM Parameters</li>
+  <li>Tuning Parameters</li>
+</ol>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2017/06/19/welcome-to-jekyll.html">Welcome to Jekyll!</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 19, 2017</span>
+<hr />
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2017/06/19/example-content.html">example</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Jun 19, 2017</span>
+<h2 id="how-boosting-works">1. How Boosting Works</h2>
+<p>Boosting is a sequential technique which works on the principle of <strong>ensemble</strong>. It combines a set of <strong>weak learners</strong> and delivers improved prediction accuracy. At any instant t, the model outcomes are weighed based on the outcomes of previous instant t-1. The outcomes predicted correctly are given a lower weight and the ones miss-classified are weighted higher.</p>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning.html">Complete Guide to Parameter Tuning in GBM and Xgboost</a>
-        </h2>
-      </li>
-    
-  </ul>
+<h2 id="gbm-parameters">2. GBM Parameters</h2>
+<p>The overall parameters can be divided into 3 categories:</p>
 
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+<ol>
+  <li><strong>Tree-Specific Parameters</strong>: These affect each individual tree in the model.</li>
+  <li><strong>Boosting Parameters</strong>: These affect the boosting operation in the model.</li>
+  <li><strong>Miscellaneous Parameters</strong>: Other parameters for overall functioning.</li>
+</ol>
 
-</div>
+<h3 id="tree-specific-parameters">2.1 Tree-Specific Parameters</h3>
+<p><img src="images/0_00.png" alt="" /></p>
+
+  </div>
+
+</article>
 
       </div>
     </div>

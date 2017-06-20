@@ -15,5 +15,3 @@ url: "https://shengyg.github.io/repository/" # the base hostname & protocol for 
 # twitter_username: jekyllrb
 github_username:  ShengYg
 
-# Build settings
-markdown: kramdown

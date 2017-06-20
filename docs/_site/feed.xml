@@ -4,10 +4,10 @@
     <title>ShengYg&#39;s Blog</title>
     <description>Step after step the ladder is ascended.
 </description>
-    <link>http://yourdomain.com/</link>
-    <atom:link href="http://yourdomain.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 19 Jun 2017 23:02:26 +0800</pubDate>
-    <lastBuildDate>Mon, 19 Jun 2017 23:02:26 +0800</lastBuildDate>
+    <link>https://shengyg.github.io/repository//</link>
+    <atom:link href="https://shengyg.github.io/repository//feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Tue, 20 Jun 2017 10:52:42 +0800</pubDate>
+    <lastBuildDate>Tue, 20 Jun 2017 10:52:42 +0800</lastBuildDate>
     <generator>Jekyll v3.0.1</generator>
     
       <item>
@@ -28,8 +28,8 @@
 
 </description>
         <pubDate>Mon, 19 Jun 2017 21:56:41 +0800</pubDate>
-        <link>http://yourdomain.com/jekyll/update/2017/06/19/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/jekyll/update/2017/06/19/welcome-to-jekyll.html</guid>
+        <link>https://shengyg.github.io/repository//jekyll/update/2017/06/19/welcome-to-jekyll.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository//jekyll/update/2017/06/19/welcome-to-jekyll.html</guid>
         
         
         <category>jekyll</category>
@@ -44,15 +44,19 @@
 
 &lt;p&gt;&lt;a href=&quot;/about&quot;&gt;Link to another page: About&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;There should be whitespace between paragraphs.&lt;/p&gt;
+&lt;p&gt;inline &lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.&lt;/p&gt;
+&lt;h2 id=&quot;header-1&quot;&gt;Header 1&lt;/h2&gt;
 
-&lt;h1 id=&quot;header-1header-1&quot;&gt;&lt;a href=&quot;#header-1&quot;&gt;&lt;/a&gt;Header 1&lt;/h1&gt;
+&lt;h3 id=&quot;header-2&quot;&gt;Header 2&lt;/h3&gt;
 
-&lt;p&gt;This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.&lt;/p&gt;
+&lt;h4 id=&quot;header-3&quot;&gt;Header 3&lt;/h4&gt;
 
-&lt;h2 id=&quot;header-2header-2&quot;&gt;&lt;a href=&quot;#header-2&quot;&gt;&lt;/a&gt;Header 2&lt;/h2&gt;
+&lt;h5 id=&quot;header-4&quot;&gt;Header 4&lt;/h5&gt;
+
+&lt;h6 id=&quot;header-5&quot;&gt;Header 5&lt;/h6&gt;
+
+&lt;h6 id=&quot;header-6&quot;&gt;# Header 6&lt;/h6&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;This is a blockquote following a header.&lt;/p&gt;
@@ -60,40 +64,13 @@
   &lt;p&gt;When something is important enough, you do it even if the odds are not in your favor.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h4 id=&quot;header-1header-3&quot;&gt;&lt;a href=&quot;#header-1&quot;&gt;&lt;/a&gt;Header 3&lt;/h4&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;js
-// Javascript code with syntax highlighting.
-var fun = function lang(l) {
-  dateformat.i18n = require(&#39;./lang/&#39; + l)
-  return true;
-}
-&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ruby
-# Ruby code with syntax highlighting
-GitHubPages::Dependencies.gems.each do |gem, version|
-  s.add_dependency(gem, &quot;= #{version}&quot;)
-end
-&lt;/code&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;header-4header-4&quot;&gt;&lt;a href=&quot;#header-4&quot;&gt;&lt;/a&gt;Header 4&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;This is an unordered list following a header.&lt;/li&gt;
-  &lt;li&gt;This is an unordered list following a header.&lt;/li&gt;
-  &lt;li&gt;This is an unordered list following a header.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h5 id=&quot;header-5header-5&quot;&gt;&lt;a href=&quot;#header-5&quot;&gt;&lt;/a&gt;Header 5&lt;/h5&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;This is an ordered list following a header.&lt;/li&gt;
-  &lt;li&gt;This is an ordered list following a header.&lt;/li&gt;
-  &lt;li&gt;This is an ordered list following a header.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h6 id=&quot;header-6header-6&quot;&gt;&lt;a href=&quot;#header-6&quot;&gt;&lt;/a&gt;Header 6&lt;/h6&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Javascript code with syntax highlighting.&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;lang&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;dateformat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i18n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;./lang/&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;table&gt;
   &lt;thead&gt;
@@ -187,30 +164,54 @@ end
 
 &lt;p&gt;&lt;img src=&quot;https://guides.github.com/activities/hello-world/branching.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;definition-lists-can-be-used-with-html-syntax&quot;&gt;Definition lists can be used with HTML syntax.&lt;/h3&gt;
-
-&lt;dl&gt;
-&lt;dt&gt;Name&lt;/dt&gt;
-&lt;dd&gt;Godzilla&lt;/dd&gt;
-&lt;dt&gt;Born&lt;/dt&gt;
-&lt;dd&gt;1952&lt;/dd&gt;
-&lt;dt&gt;Birthplace&lt;/dt&gt;
-&lt;dd&gt;Japan&lt;/dd&gt;
-&lt;dt&gt;Color&lt;/dt&gt;
-&lt;dd&gt;Green&lt;/dd&gt;
-&lt;/dl&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
 Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
 &lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
-The final element.
-&lt;/code&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 19 Jun 2017 21:56:41 +0800</pubDate>
-        <link>http://yourdomain.com/jekyll/update/2017/06/19/example-content.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/jekyll/update/2017/06/19/example-content.html</guid>
+        <link>https://shengyg.github.io/repository//jekyll/update/2017/06/19/example-content.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository//jekyll/update/2017/06/19/example-content.html</guid>
+        
+        
+        <category>jekyll</category>
+        
+        <category>update</category>
+        
+      </item>
+    
+      <item>
+        <title>Complete Guide to Parameter Tuning in GBM and Xgboost</title>
+        <description>&lt;h2 id=&quot;table-of-contents&quot;&gt;Table of Contents&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;How Boosting Works&lt;/li&gt;
+  &lt;li&gt;Understanding GBM Parameters&lt;/li&gt;
+  &lt;li&gt;Tuning Parameters&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;how-boosting-works&quot;&gt;1. How Boosting Works&lt;/h2&gt;
+&lt;p&gt;Boosting is a sequential technique which works on the principle of &lt;strong&gt;ensemble&lt;/strong&gt;. It combines a set of &lt;strong&gt;weak learners&lt;/strong&gt; and delivers improved prediction accuracy. At any instant t, the model outcomes are weighed based on the outcomes of previous instant t-1. The outcomes predicted correctly are given a lower weight and the ones miss-classified are weighted higher.&lt;/p&gt;
+
+&lt;h2 id=&quot;gbm-parameters&quot;&gt;2. GBM Parameters&lt;/h2&gt;
+&lt;p&gt;The overall parameters can be divided into 3 categories:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Tree-Specific Parameters&lt;/strong&gt;: These affect each individual tree in the model.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Boosting Parameters&lt;/strong&gt;: These affect the boosting operation in the model.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Miscellaneous Parameters&lt;/strong&gt;: Other parameters for overall functioning.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;tree-specific-parameters&quot;&gt;2.1 Tree-Specific Parameters&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;images/0_00.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 19 Jun 2017 10:00:00 +0800</pubDate>
+        <link>https://shengyg.github.io/repository//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning.html</guid>
         
         
         <category>jekyll</category>
