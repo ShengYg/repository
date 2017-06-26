@@ -4,10 +4,10 @@
     <title>ShengYg&#39;s Blog</title>
     <description>Step after step the ladder is ascended.
 </description>
-    <link>https://shengyg.github.io/repository/docs/</link>
-    <atom:link href="https://shengyg.github.io/repository/docs/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 26 Jun 2017 17:11:08 +0800</pubDate>
-    <lastBuildDate>Mon, 26 Jun 2017 17:11:08 +0800</lastBuildDate>
+    <link>https://shengyg.github.io/repository/docs//</link>
+    <atom:link href="https://shengyg.github.io/repository/docs//feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 26 Jun 2017 17:17:13 +0800</pubDate>
+    <lastBuildDate>Mon, 26 Jun 2017 17:17:13 +0800</lastBuildDate>
     <generator>Jekyll v3.0.1</generator>
     
       <item>
@@ -28,8 +28,8 @@
 
 </description>
         <pubDate>Mon, 19 Jun 2017 21:56:41 +0800</pubDate>
-        <link>https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/welcome-to-jekyll.html</guid>
+        <link>https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/welcome-to-jekyll.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/welcome-to-jekyll.html</guid>
         
         
         <category>jekyll</category>
@@ -42,7 +42,7 @@
         <title>example</title>
         <description>&lt;p&gt;Text can be &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, or &lt;del&gt;strikethrough&lt;/del&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&quot;/repository/docs/about&quot;&gt;Link to another page: About&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/about&quot;&gt;Link to another page: About&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;inline &lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt;.&lt;/p&gt;
 
@@ -173,8 +173,8 @@ Long, single-line code blocks should not wrap. They should horizontally scroll i
 &lt;/code&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 19 Jun 2017 21:56:41 +0800</pubDate>
-        <link>https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/example-content.html</link>
-        <guid isPermaLink="true">https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/example-content.html</guid>
+        <link>https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/example-content.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/example-content.html</guid>
         
         
         <category>jekyll</category>
@@ -453,8 +453,8 @@ Long, single-line code blocks should not wrap. They should horizontally scroll i
 
 </description>
         <pubDate>Mon, 19 Jun 2017 12:00:00 +0800</pubDate>
-        <link>https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-xgboost.html</link>
-        <guid isPermaLink="true">https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-xgboost.html</guid>
+        <link>https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-xgboost.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-xgboost.html</guid>
         
         
         <category>jekyll</category>
@@ -665,8 +665,8 @@ Long, single-line code blocks should not wrap. They should horizontally scroll i
 
 </description>
         <pubDate>Mon, 19 Jun 2017 10:00:00 +0800</pubDate>
-        <link>https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-GBM.html</link>
-        <guid isPermaLink="true">https://shengyg.github.io/repository/docs/jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-GBM.html</guid>
+        <link>https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-GBM.html</link>
+        <guid isPermaLink="true">https://shengyg.github.io/repository/docs//jekyll/update/2017/06/19/Complete-Guide-to-Parameter-Tuning-GBM.html</guid>
         
         
         <category>jekyll</category>
