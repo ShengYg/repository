@@ -11,7 +11,7 @@ email: shengy0726@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   Step after step the ladder is ascended.
 baseurl: ""
-url: "https://shengyg.github.io/repository/docs/"
+url: "https://shengyg.github.io/repository/docs"
 # twitter_username: jekyllrb
 github_username:  ShengYg
 
