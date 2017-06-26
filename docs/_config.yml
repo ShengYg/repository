@@ -11,7 +11,7 @@ email: shengy0726@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   Step after step the ladder is ascended.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://shengyg.github.io/repository/" # the base hostname & protocol for your site
+url: "https://shengyg.github.io/repository/docs" # the base hostname & protocol for your site
 # twitter_username: jekyllrb
 github_username:  ShengYg
 
