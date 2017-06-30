@@ -1,19 +1,23 @@
 ---
 layout: post
 title:  "Complete Guide to Parameter Tuning in GBM"
-date:   2017-06-19 10:00:00 +0800
+date:   2017-06-19 20:00:00 +0800
 categories: jekyll update
 ---
 
 ## Table of Contents
-1. How Boosting Works
-1. Understanding GBM Parameters
-1. Tuning Parameters
+1. [How Boosting Works](#1)
+1. [Understanding GBM Parameters](#2)
+1. [Tuning Parameters](#3)
 
 -------
 
+<a name='1'></a>
+
 ## 1. How Boosting Works
 Boosting is a sequential technique which works on the principle of **ensemble**. It combines a set of **weak learners** and delivers improved prediction accuracy. At any instant t, the model outcomes are weighed based on the outcomes of previous instant t-1. The outcomes predicted correctly are given a lower weight and the ones miss-classified are weighted higher.
+
+<a name='2'></a>
 
 ## 2. GBM Parameters
 The overall parameters can be divided into 3 categories:
@@ -87,6 +91,8 @@ The overall parameters can be divided into 3 categories:
   - Select whether to presort data for faster splits.
   - It makes the selection automatically by default but it can be changed if needed.
 
+<a name='3'></a>
+
 ## 3. Tuning Parameters
 
 ### 3.1 General Approach for Parameter Tuning
@@ -129,7 +135,7 @@ The output can be checked using following command:
 gsearch1.grid_scores_, gsearch1.best_params_, gsearch1.best_score_
 ~~~
 
-![](/assets/0_01.png)
+![]({{ site.url }}/assets/0_01.png)
 
 ### 3.3 Tuning tree-specific parameters
 

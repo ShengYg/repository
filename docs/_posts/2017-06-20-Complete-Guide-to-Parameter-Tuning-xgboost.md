@@ -1,17 +1,19 @@
 ---
 layout: post
 title:  "Complete Guide to Parameter Tuning in Xgboost"
-date:   2017-06-19 12:00:00 +0800
+date:   2017-06-20 12:00:00 +0800
 categories: jekyll update
 ---
 
 ## Table of Contents
 
-1. The XGBoost Advantage
-1. Understanding XGBoost Parameters
-1. Tuning Parameters
+1. [The XGBoost Advantage](#1)
+1. [Understanding XGBoost Parameters](#2)
+1. [Tuning Parameters](#3)
 
 ----------
+
+<a name='1'></a>
 
 ## 1. The XGBoost Advantage
 
@@ -38,6 +40,8 @@ categories: jekyll update
 1. Continue on Existing Model
   - User can start training an XGBoost model from its last iteration of previous run. This can be of significant advantage in certain specific applications.
   - GBM implementation of sklearn also has this feature so they are even on this point.
+
+<a name='2'></a>
 
 ## 2. XGBoost Parameters
 
@@ -100,6 +104,8 @@ categories: jekyll update
 1. seed [default=0]
 
 XGBoost Parameters guide: [official](http://xgboost.readthedocs.io/en/latest/parameter.html#general-parameters) [github](https://github.com/dmlc/xgboost/blob/master/doc/parameter.md)
+
+<a name='3'></a>
 
 ## 3. Parameter Tuning
 
