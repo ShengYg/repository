@@ -8,11 +8,7 @@ google_analytics: dbyll
 title: ShengYg's Blog
 
 url: "https://shengyg.github.io/repository"
-<<<<<<< HEAD
 baseurl: ""
-=======
-base_path: "https://shengyg.github.io/repository"
->>>>>>> d12dd75496ee69211e0bbfcac8daac42e59d3cb2
 
 defaults:
   -
@@ -36,8 +32,6 @@ rss_path: feed.xml
 categories_path: categories.html
 tags_path: tags.html
 
-# set it as url of an image
-# sidebar_background_image: https://www.dropbox.com/s/g9h23zrycedxtk5/sky.png?raw=1
 
 gems:
   - jekyll-paginate
