@@ -7,8 +7,8 @@ disqus: dbyll
 google_analytics: dbyll
 title: ShengYg's Blog
 
-baseurl: ""
 url: "https://shengyg.github.io/repository"
+baseurl: ""
 
 defaults:
   -
@@ -35,9 +35,6 @@ tags_path: tags.html
 # set it as url of an image
 # sidebar_background_image: https://www.dropbox.com/s/g9h23zrycedxtk5/sky.png?raw=1
 
-BASE_PATH:
-
 gems:
   - jekyll-paginate
 
-encoding: "utf-8"
