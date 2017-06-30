@@ -9,6 +9,7 @@ title: ShengYg's Blog
 
 baseurl: ""
 url: "https://shengyg.github.io/repository"
+base_path: "https://shengyg.github.io/repository"
 
 defaults:
   -
