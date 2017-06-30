@@ -8,7 +8,11 @@ google_analytics: dbyll
 title: ShengYg's Blog
 
 url: "https://shengyg.github.io/repository"
+<<<<<<< HEAD
 baseurl: ""
+=======
+base_path: "https://shengyg.github.io/repository"
+>>>>>>> d12dd75496ee69211e0bbfcac8daac42e59d3cb2
 
 defaults:
   -
