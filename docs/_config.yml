@@ -7,6 +7,9 @@ disqus: dbyll
 google_analytics: dbyll
 title: ShengYg's Blog
 
+baseurl: ""
+url: "https://shengyg.github.io/repository"
+
 defaults:
   -
     scope:
