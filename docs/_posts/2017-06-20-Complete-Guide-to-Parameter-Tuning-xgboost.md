@@ -2,7 +2,9 @@
 layout: post
 title:  "Complete Guide to Parameter Tuning in Xgboost"
 date:   2017-06-20 12:00:00 +0800
-categories: jekyll update
+categories: [jekyll]
+tags: [jekyll]
+description: Understanding XGBoost Parameters
 ---
 
 ## Table of Contents

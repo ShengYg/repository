@@ -2,7 +2,9 @@
 layout: post
 title:  "Complete Guide to Parameter Tuning in GBM"
 date:   2017-06-19 20:00:00 +0800
-categories: jekyll update
+categories: [jekyll]
+tags: [jekyll]
+description: Understanding GBM Parameters
 ---
 
 ## Table of Contents

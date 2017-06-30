@@ -2,7 +2,9 @@
 layout: post
 title:  "example"
 date:   2017-06-19 12:00:00 +0800
-categories: jekyll update
+categories: [jekyll]
+tags: [jekyll]
+description: example
 ---
 
 Text can be **bold**, _italic_, or <del>strikethrough</del>.
