@@ -23,7 +23,8 @@ The overall parameters can be divided into 3 categories:
 1. **Miscellaneous Parameters**: Other parameters for overall functioning.
 
 ### 2.1 Tree-Specific Parameters
-![](/assets/0_00.png)
+
+![]({{ site.url }}/assets/0_00.png)
 
 1. **min_samples_split**
   - Defines the minimum number of samples (or observations) which are required in a node to be considered for splitting.
