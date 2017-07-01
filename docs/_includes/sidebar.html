@@ -1,7 +1,7 @@
 <!-- sidebar.html -->
 <header class="sidebar-header" role="banner">
 	<a href="{{ site.baseurl }}/">
-		<img src="//www.gravatar.com/avatar/{{site.author.email_md5}}?s=150" class="img-circle" />
+		<img src="https://avatars0.githubusercontent.com/u/17823091?v=3&u=33fde7d9b4cc4a35be25adcb66292bc4e71148c0&s=150" class="img-circle" />
 	</a>
 	<h3 class="title">
         <a href="{{ site.baseurl }}/">{{ site.title }}</a>
@@ -46,10 +46,10 @@
 			</a>
 		</li>
 		{% endif %}
-		{% if site.author.linkedin %}
+		{% if site.author.weibo %}
 		<li>
-			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/{{ site.author.linkedin }}">
-				<i class="fa fa-linkedin fa-lg"></i>
+			<a class="btn btn-default btn-sm" href="http://weibo.com/{{ site.author.weibo }}">
+				<i class="fa fa-weibo fa-lg"></i>
 			</a>
 		</li>
 		{% endif %}
