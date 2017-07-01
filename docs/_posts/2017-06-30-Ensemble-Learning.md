@@ -2,8 +2,8 @@
 layout: post
 title:  "Ensemble Learning"
 date:   2017-06-30 12:00:00 +0800
-categories: [jekyll]
-tags: [jekyll]
+categories: [machine learning]
+tags: [ensemble]
 description: Several common types of ensemble learning
 ---
 

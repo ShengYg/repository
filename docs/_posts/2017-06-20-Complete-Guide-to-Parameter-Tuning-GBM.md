@@ -2,8 +2,8 @@
 layout: post
 title:  "Complete Guide to Parameter Tuning in GBM"
 date:   2017-06-19 20:00:00 +0800
-categories: [jekyll]
-tags: [jekyll]
+categories: [machine learning]
+tags: [ensemble]
 description: Understanding GBM Parameters
 ---
 
@@ -30,7 +30,7 @@ The overall parameters can be divided into 3 categories:
 
 ### 2.1 Tree-Specific Parameters
 
-![]({{ site.url }}/assets/0_00.png)
+![]({{ site.url }}/assets/pic/0_00.png)
 
 1. **min_samples_split**
   - Defines the minimum number of samples (or observations) which are required in a node to be considered for splitting.
@@ -137,7 +137,7 @@ The output can be checked using following command:
 gsearch1.grid_scores_, gsearch1.best_params_, gsearch1.best_score_
 ~~~
 
-![]({{ site.url }}/assets/0_01.png)
+![]({{ site.url }}/assets/pic/0_01.png)
 
 ### 3.3 Tuning tree-specific parameters
 
