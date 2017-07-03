@@ -6,3 +6,9 @@ layout: default
 {% if site.disqus and page.comments %}
     {% include disqus.html %}
 {% endif %}
+
+<p class="post-meta">Tags • 
+{% for item in page.tags %}
+  <a href="{{ site.baseurl }}/tags.html#{{ item }}-ref">{{ item }}</a>
+{% endfor %}
+</p>
