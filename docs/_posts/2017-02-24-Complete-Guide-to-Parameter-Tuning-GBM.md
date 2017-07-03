@@ -1,10 +1,10 @@
 ---
 layout: post
 title:  "Complete Guide to Parameter Tuning in GBM"
-date:   2017-06-19 20:00:00 +0800
+date:   2017-02-24 20:00:00 +0800
 categories: [machine learning]
 tags: [ensemble]
-description: Understanding GBM Parameters
+description: Boosting is a sequential technique which works on the principle of ensemble. It combines a set of weak learners and delivers improved prediction accuracy. At any instant t, the model outcomes are weighed based on the outcomes of previous instant t-1. The outcomes predicted correctly are given a lower weight and the ones miss-classified are weighted higher.
 ---
 
 ## Table of Contents

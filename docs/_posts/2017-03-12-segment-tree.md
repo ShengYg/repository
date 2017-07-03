@@ -1,10 +1,10 @@
 ---
 layout: post
 title:  "Segment-tree 线段树"
-date:   2017-07-01 16:00:00 +0800
+date:   2017-03-12 16:00:00 +0800
 categories: [algorithms]
 tags: [tree]
-description: 介绍一种树形数据结构 —— Segment Tree
+description: 介绍一种树形数据结构 —— Segment Tree。线段树是一种二叉树形结构，属于**平衡树**的一种。它将线段区间组织成树形的结构，并用每个节点来表示一条线段。
 ---
 
 ## 1. 简介

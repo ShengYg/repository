@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Ensemble Learning"
-date:   2017-06-30 12:00:00 +0800
+date:   2017-02-26 12:00:00 +0800
 categories: [machine learning]
 tags: [ensemble]
 description: Several common types of ensemble learning
@@ -42,7 +42,7 @@ description: Several common types of ensemble learning
 
 偏差（bias）描述的是预测值和真实值之间的差异，方差（variance）描述距的是预测值作为随机变量的离散程度。
 
-![]({{ site.baseurl }}/assets/pic/1_03.jpg)
+![]({{ site.baseurl }}/assets/pic/1_03.png)
 
 设样本容量为n的训练集为随机变量的集合(X1, X2, ..., Xn)，那么模型是以这些随机变量为输入的随机变量函数（其本身仍然是随机变量）：F(X1, X2, ..., Xn)。抽样的随机性带来了模型的随机性。
 

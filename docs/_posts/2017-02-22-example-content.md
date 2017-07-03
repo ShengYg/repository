@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "example"
-date:   2017-06-19 12:00:00 +0800
+date:   2017-02-22 12:00:00 +0800
 categories: [jekyll]
 tags: [jekyll]
 description: example

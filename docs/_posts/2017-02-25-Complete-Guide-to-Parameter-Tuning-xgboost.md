@@ -1,10 +1,10 @@
 ---
 layout: post
 title:  "Complete Guide to Parameter Tuning in Xgboost"
-date:   2017-06-20 12:00:00 +0800
+date:   2017-02-25 12:00:00 +0800
 categories: [machine learning]
 tags: [ensemble]
-description: Understanding XGBoost Parameters
+description: XGBoost (eXtreme Gradient Boosting) is an advanced implementation of gradient boosting algorithm. If things don’t go your way in predictive modeling, use XGboost.  XGBoost algorithm has become the ultimate weapon of many data scientist. It’s a highly sophisticated algorithm, powerful enough to deal with all sorts of irregularities of data.
 ---
 
 ## Table of Contents
