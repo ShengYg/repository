@@ -20,7 +20,7 @@ description: 本文转载自[树状数组(Binary Indexed Trees)]
 
 ## 1. 基本思想
 
-![]({{ site.url }}/assets/pic/5_00.png)
+![]({{ site.baseurl }}/assets/pic/5_00.png)
 
 假设我们要得到索引为13的累积频率(即c[13])，在二进制表示中，`13=1101`。因此， 我们可以这样计算：c[1101]=tree[1101]+tree[1100]+tree[1000]。
 
@@ -49,7 +49,7 @@ def get_c(idx):
 
 例如，当idx=13时，初始sum=0，`c[1101]=f[1]+...+f[13]=tree[1101]+tree[1100]+tree[1000]`
 
-![]({{ site.url }}/assets/pic/5_01.png)
+![]({{ site.baseurl }}/assets/pic/5_01.png)
 
 ## 4. 改变某个位置的频率并且更新数组
 
@@ -62,7 +62,7 @@ def update(idx, val):
         idx += idx & -idx
 ~~~
 
-![]({{ site.url }}/assets/pic/5_02.png)
+![]({{ site.baseurl }}/assets/pic/5_02.png)
 
 ## 5. 读取某个位置的实际频率
 
