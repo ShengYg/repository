@@ -3,8 +3,8 @@ layout: post
 title:  "Java HashMap工作原理及实现"
 date:   2017-04-28 12:00:00 +0800
 categories: [java]
-tags: [hash]
-description: HashMap的工作原理、hash的实现、get和put的原理
+tags: [hash,map]
+description: HashMap的工作原理、hash的实现、get和put的原理、TreeMap
 ---
 
 
@@ -16,6 +16,7 @@ description: HashMap的工作原理、hash的实现、get和put的原理
 - [RESIZE的实现](#5)
 - [总结](#6)
 - [LinkedHashMap](#7)
+- [TreeMap](#8)
 
 ---
 
@@ -305,6 +306,31 @@ void afterNodeRemoval(Node<K,V> p) { }
 ~~~
 
 上面3个函数都是为了保证双向链表中的节点次序或者双向链表容量所做的一些额外的事情，目的就是保持双向链表中节点的顺序要从eldest到youngest。
+
+
+<a name='8'></a>
+### 8. TreeMap
+
+HashMap不保证数据有序，LinkedHashMap保证数据可以保持插入顺序，而如果我们希望Map可以保持**key的大小顺序**的时候，我们就需要利用TreeMap。put操作时，如果key存在的话，old value被替换；如果不存在的话，则新添一个节点，然后对做红黑树的平衡操作。
+
+#### **successor后继**
+
+TreeMap是如何保证其迭代输出是有序的呢？其实从宏观上来讲，就相当于树的中序遍历(LDR)。
+
+~~~java
+for(Entry<Integer, String> entry : tmap.entrySet()) {
+    System.out.println(entry.getKey() + ": " + entry.getValue());
+}
+~~~
+
+~~~java
+for(Iterator<Map.Entry<String, String>> it = tmap.entrySet().iterator() ; tmap.hasNext(); ) {
+    Entry<Integer, String> entry = it.next();
+    System.out.println(entry.getKey() + ": " + entry.getValue());
+}
+~~~
+
+在it.next()的调用中会使用nextEntry调用successor，进行中序遍历。
 
 ---
 #### 参考链接
