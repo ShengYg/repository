@@ -33,3 +33,27 @@ def sample(iterable, n):
                 reservoir[m] = item
     return reservoir
 ~~~
+
+~~~java
+public int[] reservoirSampling(int[] data,int k){
+    if(data == null){
+        return new int[0];
+    }
+    if(data.length < k){
+        return new int[0];
+    }
+    int[] sample = new int[k];
+    int n = data.length;
+    for(int i = 0; i < n; i++){
+        if(i < k){
+            sample[i]=data[i];
+        }else{
+            int j = new Random().nextInt(i);
+            if(j < k){
+                sample[j] = data[i];
+            }
+        }
+    }
+    return sample;
+}
+~~~
