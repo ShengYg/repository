@@ -2,7 +2,9 @@ paginate: 10 # pagination based on number of posts
 paginate_path: "page:num"
 exclude: ["README.md"] # files to exclude
 highlighter: rouge
-markdown: kramdown
+markdown: redcarpet
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
 disqus: dbyll
 google_analytics: dbyll
 title: ShengYg's Blog
@@ -33,6 +35,4 @@ categories_path: categories.html
 tags_path: tags.html
 
 
-gems:
-  - jekyll-paginate
-
+plugins: ['jekyll-paginate', 'redcarpet']
