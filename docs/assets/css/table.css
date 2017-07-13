@@ -1,0 +1,16 @@
+table {
+	border:#ccc 1px solid;
+	border-radius:3px;
+}
+table th {
+	padding:21px 25px 22px 25px;
+	border:1px solid black;
+}
+table tr {
+	padding-left:20px;
+}
+table td {
+	padding: 18px;
+	text-align: center;
+	border: 1px solid black;
+}
