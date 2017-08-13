@@ -21,7 +21,8 @@ String[] ret = (String).split(...);
 String ret = (String[]).join(...);
 
 int[] ret = (List).toArray(new int[0]);
-ArrayList<..> ret = new ArrayList<>(Arrays.asList(array));
+Integer[] arr_integer = Arrays.stream(arr_int).boxed().toArray(Integer[]::new);
+ArrayList<Integer> ret = new ArrayList<Integer>(Arrays.asList(arr_integer));
 ~~~
 
 ### 2. BigInteger
