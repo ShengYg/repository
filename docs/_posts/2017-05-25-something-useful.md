@@ -20,9 +20,28 @@ String ret = String.valueOf(char[]);
 String[] ret = (String).split(...);
 String ret = (String[]).join(...);
 
-int[] ret = (List).toArray(new int[0]);
+import java.util.stream.*;
+// list -> Integer[]
+Integer[] arr_integer = list.toArray(new Integer[list.size()]);
+// list -> int[]
+int[] arr_int = list.stream().mapToInt(i->i).toArray();
+// int[] -> Integer[]
 Integer[] arr_integer = Arrays.stream(arr_int).boxed().toArray(Integer[]::new);
-ArrayList<Integer> ret = new ArrayList<Integer>(Arrays.asList(arr_integer));
+// Integer[] -> list
+ArrayList<Integer> list = new ArrayList<Integer>(Arrays.asList(arr_integer));
+// int[] -> list
+ArrayList<Integer> list = Arrays.stream(arr_int).boxed().collect(Collectors.toCollection(ArrayList::new));
+
+// list -> list
+list.stream()...collect(Collectors.toCollection(ArrayList::new));
+// list -> int[]
+list.stream()...toArray();
+// list -> Integer[]
+list.stream()...toArray(Integer[]::new);
+// int[] -> int[]
+Arrays.stream(arr_int)...toArray();
+// int[] -> list
+Arrays.stream(arr_int).boxed()...collect(Collectors.toCollection(ArrayList::new));
 ~~~
 
 ### 2. BigInteger
@@ -43,4 +62,36 @@ import org.apache.commons.lang3.tuple.*;
 
 ImmutableTriple t = new ImmutableTriple(l, m, r);
 ImmutablePair p = new ImmutablePair(l, r);
+
+class Pair<L, R>{
+    L left;
+    R right;
+    Pair(L left, R right){
+        this.left = left;
+        this.right = right;
+    }
+}
 ~~~
+
+### 4. lambda
+
+~~~java
+Collections.sort(list, (a, b) -> {
+    if(a.left == b.left)
+        return a.right - b.right;
+    else
+        return a.left - b.left;
+});
+~~~
+
+### 5. map, reduce, filter
+~~~java
+List<Integer> map_num = list.stream().map(num -> num * 2).collect(Collectors.toList());
+     
+Optional<Integer> sum = list.stream().reduce((a, b) -> a + b);
+sum.orElseGet(() -> 0);
+     
+List<Integer> filter_num = list.stream().filter(num -> num % 2 == 0).collect(Collectors.toList());
+~~~
+
+
