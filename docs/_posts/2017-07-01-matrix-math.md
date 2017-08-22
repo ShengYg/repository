@@ -57,3 +57,43 @@ class BasicMatrixMath{
     }
 }
 ~~~
+
+### 应用：递推式矩阵加速
+
+递推式：
+
+$$f_n = f_{n-1} + f_{n-2}$$
+
+进行矩阵变换：
+
+$$
+\begin{bmatrix}
+    f_{n+1} \\
+    f_n \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+    1 & 1 \\
+    1 & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+    f_n \\
+    f_{n-1} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+    1 & 1 \\
+    1 & 0 \\
+\end{bmatrix}^n
+\begin{bmatrix}
+    f_1 \\
+    f_0 \\
+\end{bmatrix}
+$$
+
+用矩阵幂运算由$O(n)$加速到$O(log(n))$
+
+
+
+
+
