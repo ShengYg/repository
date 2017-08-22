@@ -7,6 +7,14 @@ tags: [java]
 description: 
 ---
 
+## Table of Contents
+
+- java
+- 算法
+
+---
+
+## java
 
 ### 1. transformation
 
@@ -94,4 +102,8 @@ sum.orElseGet(() -> 0);
 List<Integer> filter_num = list.stream().filter(num -> num % 2 == 0).collect(Collectors.toList());
 ~~~
 
+## 算法
 
+### dp递推
+- f(n) = f(n-1) + C
+- f(i, j) = f(i, k) + f(k, j) + C
