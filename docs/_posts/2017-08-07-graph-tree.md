@@ -1,11 +1,13 @@
 ---
 layout: post
-title:  "Graph Valid Tree"
+title:  "有向图、无向图环路"
 date:   2017-08-07 14:00:00 +0800
 categories: [algorithms]
 tags: [tree, graph]
-description: 判断图是否为树
+description: 判断有向图、无向图中是否有环路
 ---
+
+## 无向图
 
 Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
@@ -147,8 +149,44 @@ public class Solution {
 } 
 ~~~
 
+## 有向图
 
+深度优先遍历，记录每个节点访问次数visited：
 
+0：未访问
+
+1：访问一次
+
+2：访问多次
+
+当下一个要访问的点为1时，表示存在后向边，即存在环，返回False
+
+~~~java
+class Solution(object):
+    def DFS(self, n, edges):
+        graph = [[] for _ in range(n)]
+        for item in edges:
+            graph[item[0]].append(item[1])
+        visited = [0] * n
+        for i in range(n):
+            if not visited[i]:
+                ret = self.DFS_visit(visited, graph, i)
+                if not ret:
+                    return False
+        return True
+        
+    def DFS_visit(self, visited, graph, i):
+        visited[i] = 1
+        for j in graph[i]:
+            if not visited[j]:
+                ret = self.DFS_visit(visited, graph, j)
+                if not ret:
+                    return False
+            elif visited[j] == 1:
+                return False
+        visited[i] = -1
+        return True
+~~~
 
 
 
