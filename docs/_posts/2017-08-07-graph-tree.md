@@ -1,12 +1,21 @@
 ---
 layout: post
-title:  "有向图、无向图环路"
+title:  "一些图算法"
 date:   2017-08-07 14:00:00 +0800
 categories: [algorithms]
 tags: [tree, graph]
-description: 判断有向图、无向图中是否有环路
+description: 判断有向图、无向图中是否有环路，有向无环图拓扑排序
 ---
 
+## Table of Contents
+
+- [无向图环路](#1)
+- [有向图环路](#2)
+- [有向无环图拓扑排序](#3)
+
+---
+
+<a name='1'></a>
 ## 无向图
 
 Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
@@ -149,6 +158,7 @@ public class Solution {
 } 
 ~~~
 
+<a name='2'></a>
 ## 有向图
 
 深度优先遍历，记录每个节点访问次数visited：
@@ -159,36 +169,75 @@ public class Solution {
 
 2：访问多次
 
-当下一个要访问的点为1时，表示存在后向边，即存在环，返回False
+当下一个要访问的点为1时，表示存在后向边，即存在环，直接抛出异常，返回False
 
 ~~~java
 class Solution(object):
+    visited = None
+
     def DFS(self, n, edges):
         graph = [[] for _ in range(n)]
         for item in edges:
             graph[item[0]].append(item[1])
-        visited = [0] * n
+        self.visited = [0] * numCourses
         for i in range(n):
-            if not visited[i]:
-                ret = self.DFS_visit(visited, graph, i)
-                if not ret:
+            if not self.visited[i]:
+                try:
+                    self.DFS_visit(graph, i)
+                except:
                     return False
         return True
-        
-    def DFS_visit(self, visited, graph, i):
-        visited[i] = 1
+
+    def DFS_visit(self, graph, i):
+        self.visited[i] = 1
         for j in graph[i]:
-            if not visited[j]:
-                ret = self.DFS_visit(visited, graph, j)
-                if not ret:
-                    return False
-            elif visited[j] == 1:
-                return False
-        visited[i] = -1
-        return True
+            if not self.visited[j]:
+                self.DFS_visit(graph, j)
+            elif self.visited[j] == 1:
+                raise
+        self.visited[i] = -1
 ~~~
 
+<a name='3'></a>
+## 有向无环图的拓扑排序
 
+深度优先搜索时加入每个点的访问结束时间，按结束时间逆排序。
+
+~~~java
+class Solution(object):
+    visited = None
+    f_time = None
+    time = None
+
+    def DFS(self, n, edges):
+        graph = [[] for _ in range(n)]
+        for item in edges:
+            graph[item[0]].append(item[1])
+        self.visited = [0] * n
+        self.time = 0
+        self.f_time = [0] * n
+        for i in range(n):
+            if not self.visited[i]:
+                try:
+                    self.DFS_visit(graph, i)
+                except:
+                    return []
+        ret = zip(self.f_time, range(n))
+        ret = sorted(ret, key=lambda x: x[0])[::-1]
+        return [item[1] for item in ret]
+
+    def DFS_visit(self, graph, i):
+        self.time += 1
+        self.visited[i] = 1
+        for j in graph[i]:
+            if not self.visited[j]:
+                self.DFS_visit(graph, j)
+            elif self.visited[j] == 1:
+                raise
+        self.visited[i] = -1
+        self.time += 1
+        self.f_time[i] = self.time
+~~~
 
 
 
