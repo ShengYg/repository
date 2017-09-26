@@ -4,7 +4,7 @@ title:  "Java HashSet工作原理及实现"
 date:   2017-05-07 12:00:00 +0800
 categories: [java]
 tags: [set]
-description: java ArrayList、LinkedList、Vector
+description: java HashSet, LinkedHashSet, TreeSet
 ---
 
 ## Table of Contents
