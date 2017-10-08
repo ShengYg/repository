@@ -34,7 +34,7 @@ class BasicMatrixMath{
             for(int j = 0; j < matrixb[0].length; j++) {
                 result[i][j] = 0;
                 for (int k = 0; k < matrixa[0].length; k++) {
-                    result[i][j] += matrixa[i][k] * matrixa[k][j];
+                    result[i][j] += matrixa[i][k] * matrixb[k][j];
                     result[i][j] %= mod;
                 }
             }
