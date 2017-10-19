@@ -47,6 +47,19 @@ def get_c(idx):
     return sum
 ~~~
 
+二维
+~~~java
+int sum(int row, int col, int[][] arr) {
+    int ret = 0;
+    for(int i = row; i > 0; i -= i & -i) {
+        for(int j = col; j > 0; j -= j & -j) {
+            ret += tree[i][j];
+        }
+    }
+    return ret;
+}
+~~~
+
 例如，当idx=13时，初始sum=0，`c[1101]=f[1]+...+f[13]=tree[1101]+tree[1100]+tree[1000]`
 
 ![]({{ site.baseurl }}/assets/pic/5_01.png)
@@ -60,6 +73,17 @@ def update(idx, val):
     while idx <= MaxVal:
         tree[idx] += val
         idx += idx & -idx
+~~~
+
+二维
+~~~java
+void update(int row, int col, int val, int N, int[][] arr) {
+    for(int i = row; i <= N; i += i & -i) {
+        for(int j = col; j <= N; j += j & -j) {
+            tree[i][j] += val;
+        }
+    }
+}
 ~~~
 
 ![]({{ site.baseurl }}/assets/pic/5_02.png)
