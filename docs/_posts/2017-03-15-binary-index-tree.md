@@ -9,6 +9,7 @@ description: 本文转载自[树状数组(Binary Indexed Trees)]
 
 本文转载自[树状数组(Binary Indexed Trees)](http://www.hawstein.com/posts/binary-indexed-trees.html)，有整理。
 
+> 注意：`数组index从1开始`
 
 ## 符号含义
 
