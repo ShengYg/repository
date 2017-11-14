@@ -12,6 +12,7 @@ description: 判断有向图、无向图中是否有环路，有向无环图拓�
 - [无向图环路](#1)
 - [有向图环路](#2)
 - [有向无环图拓扑排序](#3)
+- [最小生成树](#4)
 
 ---
 
@@ -239,10 +240,77 @@ class Solution(object):
         self.f_time[i] = self.time
 ~~~
 
+<a name='4'></a>
+## 最小生成树
 
+### kruskal
 
+~~~java
+class Edge{
+    public int u;
+    public int v;
+    public double weight;
 
+    public Edge(int u, int v, double weight){
+        this.v = v;
+        this.u = u;
+        this.weight = weight;
+    }
+}
 
+public class KruskalMST {
+    public static HashSet<Integer>[] adj;
+    public static int[] union;
+    public static ArrayList<Edge> ret;
+
+    public static int find_union(int u){
+        while(union[u] != u)
+            u = union[u];
+        return u;
+    }
+
+    public static void main(String[] args){
+        Scanner in = new Scanner(System.in);
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> {
+            if(a.weight > b.weight)
+                return 1;
+            else if(a.weight < b.weight)
+                return -1;
+            else
+                return 0;
+        });
+        int N = in.nextInt(); // N vertices
+        int M = in.nextInt(); // M edges
+        adj = new HashSet[N];
+        Arrays.fill(adj, new HashSet<>());
+        while(M-- != 0){
+            int u = in.nextInt();
+            int v = in.nextInt();
+            double weight = in.nextDouble();
+            pq.add(new Edge(u, v, weight));
+            adj[u].add(v);
+            adj[v].add(u);
+        }
+        union = new int[N];
+        for(int i = 0; i < N; i++)
+            union[i] = i;
+        ret = new ArrayList<>();
+        while(!pq.isEmpty()){
+            Edge e = pq.poll();
+            int root1 = find_union(e.u);
+            int root2 = find_union(e.v);
+            if(root1 != root2) {
+                union[root1] = root2;
+                ret.add(e);
+            }
+        }
+        for(Edge e: ret){
+            System.out.print(e.u);
+            System.out.println(e.v);
+        }
+    }
+}
+~~~
 
 
 
