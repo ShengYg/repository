@@ -35,5 +35,5 @@ categories_path: categories.html
 tags_path: tags.html
 
 
-plugins: ['jekyll-paginate', 'redcarpet', 'jekyll-toc']
+plugins: ['jekyll-paginate', 'redcarpet']
 
