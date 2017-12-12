@@ -9,15 +9,17 @@ description: 判断有向图、无向图中是否有环路，有向无环图拓�
 
 ## Table of Contents
 
-- [无向图环路](#1)
-- [有向图环路](#2)
+- [无向图是树](#1)
+- [有向图是树](#2)
 - [有向无环图拓扑排序](#3)
 - [最小生成树](#4)
+- [欧拉图](#5)
+- [单源最短路径](#6)
 
 ---
 
 <a name='1'></a>
-## 无向图
+## 无向图是树
 
 Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
@@ -160,7 +162,7 @@ public class Solution {
 ~~~
 
 <a name='2'></a>
-## 有向图
+## 有向图是树
 
 深度优先遍历，记录每个节点访问次数visited：
 
@@ -312,6 +314,65 @@ public class KruskalMST {
 }
 ~~~
 
+<a name='5'></a>
+## 5.欧拉图
+
+- 无向图欧拉回路：所有顶点的度数都为偶数。
+- 有向图欧拉回路：所有顶点的出度与入读相等。
+- 无向图欧拉路径： 之多有两个顶点的度数为奇数，其他顶点的度数为偶数。
+- 有向图欧拉路径： 至多有两个顶点的入度和出度绝对值差1（若有两个这样的顶点，则必须其中一个出度大于入度，另一个入度大于出度）,其他顶点的入度与出度相等。
+
+<a name='6'></a>
+## 6.单源最短路径
+
+Dijkstra算法：非负权重有向图上单源最短路径
+~~~cpp
+class Solution {
+public:
+    vector<int> dist;
+    unordered_map<int, vector<pair<int, int>>> graph;
+    bool seen[101]={false};
+    int Dijkstra(int N, int K) {
+        // N: edges
+        // K: start node
+        // graph: node -> [(node, weight)...]
+		// seen
+		// dist
+        for(int i = 0; i <= N; i++)
+            dist.push_back(numeric_limits<int>::max());
+        dist[K] = 0;
+
+        while(true){
+            int candNode = -1;
+            int candDist = numeric_limits<int>::max();
+            for(int i = 1; i <= N; i++){
+                if(!seen[i] && dist[i] < candDist){
+                    candDist = dist[i];
+                    candNode = i;
+                }
+            }
+
+            if(candNode<0)
+                break;
+            seen[candNode] = true;
+            if(graph.find(candNode)!=graph.end()){
+                for(pair<int, int> p: graph.find(candNode)->second){
+                    dist[p.first] = min(dist[p.first], dist[candNode]+p.second);
+                }
+            }
+        }
+
+        int ret = 0;
+        for(int i = 1; i <= N; i++){
+            int cand = dist[i];
+            if(cand == numeric_limits<int>::max())
+                return -1;
+            ret = max(ret, cand);
+        }
+        return ret;
+    }
+};
+~~~
 
 
 
