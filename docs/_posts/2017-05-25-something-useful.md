@@ -127,6 +127,14 @@ Collections.sort(list, (a, b) -> {
     else
         return a.left - b.left;
 });
+
+// 2D array sort
+Arrays.sort(cir, new Comparator<float[]>() {
+    public int compare(float[] a, float[] b) {
+        return Float.compare(a[2], b[2]);
+    }
+});
+Arrays.sort(array, Comparator.comparingDouble(a -> a[1]));
 ~~~
 
 ### 6. map, reduce, filter
@@ -139,6 +147,69 @@ sum.orElseGet(() -> 0);
 List<Integer> filter_num = list.stream().filter(num -> num % 2 == 0).collect(Collectors.toList());
 ~~~
 
+## cpp
+
+### 1.init
+
+~~~cpp
+getline(cin, line);
+
+vector<int> v(n, val);
+vector<int> v = {1, 2, 3, 4};
+
+set<int> iset(ivec.begin(), ivec.end());
+set1.insert(set2.begin(), set2.end());
+
+auto map_it = map.begin();
+cout << map_it->first << map_it->second;
+
+auto ret = map.insert(make_pair(key, value));
+if(!ret.second)
+	ret.first->second++;
+
+class cmp{
+public:
+    bool operator()(pair<ll,ll> p1, pair<ll,ll> p2){
+        return p1.first*p1.second > p2.first*p2.second;	// 由小到大
+	}
+};
+priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, cmp> q;
+
+reverse(v.begin(), v.end());
+sort(v.begin(), v.end());
+max_element(v.begin(), v.end());
+
+numeric_limits<int>::max()
+~~~
+
+### 2.transformation
+
+~~~cpp
+int i = stoi(s);	//stof, stod, stol ,stoll...
+string s = to_string(i);
+
+strcpy(arr, string.c_str());
+string s = arr;
+
+vector<string> split(const  string& s, const string& delim) {
+    vector<string> elems;
+    size_t pos = 0;
+    size_t len = s.length();
+    size_t delim_len = delim.length();
+    if (delim_len == 0) return elems;
+    while (pos < len) {
+        int find_pos = s.find(delim, pos);
+        if (find_pos < 0) {
+            elems.push_back(s.substr(pos, len - pos));
+            break;
+        }
+        elems.push_back(s.substr(pos, find_pos - pos));
+        pos = find_pos + delim_len;
+    }
+    return elems;
+}
+
+~~~
 ## 算法
 
 ### dp递推
