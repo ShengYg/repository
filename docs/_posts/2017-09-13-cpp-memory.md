@@ -4,7 +4,7 @@ title:  "cpp 内存管理"
 date:   2017-09-01 14:00:00 +0800
 categories: [cpp]
 tags: []
-description: 
+description: 关于c++内存的相关介绍
 ---
 
 ## 1 内存分配方式
