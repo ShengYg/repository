@@ -172,6 +172,89 @@ class SegmentTree(object):
         return rangeSum(self.root, i, j)
 ~~~
 
+~~~cpp
+template <typename T, class op = plus<T>>
+class SegTree {
+private:
+    struct node {
+        int l, r;
+        T v, lazy = INF;
+        node() {}
+        node(int l, int r, T v) : l(l), r(r), v(v) {}
+        void modify(T k) {
+            v = k;
+            lazy = k;
+        }
+    };
+    vector<node> tr;
+    void pd(int now) {
+        if (tr[now].lazy == INF) return;
+        tr[now * 2 + 1].modify(tr[now].lazy);
+        tr[now * 2 + 2].modify(tr[now].lazy);
+        tr[now].lazy = INF;
+    }
 
+public:
+    SegTree() {}
+    SegTree(int n) : SegTree(vector<T>(n)) {}
+    SegTree(const vector<T>& a) {
+        int n = a.size();
+        tr.resize(4 * n);
+        function<void(int, int, int)> cre = [&](int l, int r, int now) {
+            if (l + 1 == r) tr[now] = node(l, r, a[l]);
+            else {
+                int mid = (l + r) / 2;
+                cre(l, mid, now * 2 + 1);
+                cre(mid, r, now * 2 + 2);
+                tr[now] = node(l, r, op()(tr[now * 2 + 1].v, tr[now * 2 + 2].v));
+            }
+        };
+        cre(0, n, 0);
+    }
+    void update(int l, int r, T tag, int now = 0) {
+        if (l >= r || tr[now].r <= l || tr[now].l >= r)
+            return;
+        else if (tr[now].r <= r && tr[now].l >= l)
+            tr[now].modify(tag);
+        else {
+            pd(now);
+            update(l, r, tag, now * 2 + 1);
+            update(l, r, tag, now * 2 + 2);
+            tr[now].v = op()(tr[now * 2 + 1].v, tr[now * 2 + 2].v);
+        }
+    }
+    T query(int l, int r, int now = 0) {
+        if (l >= r || tr[now].r <= l || tr[now].l >= r) return identity_element(op());
+        else if (tr[now].r <= r && tr[now].l >= l) return tr[now].v;
+        else {
+            pd(now);
+            return op()(query(l, r, now * 2 + 1), query(l, r, now * 2 + 2));
+        }
+    }
+};
+
+template<typename T>
+struct Max {
+    T operator()(const T& a, const T& b) const { return max(a, b); }
+    friend T identity_element(const Max& s) { return -INF; }
+};
+
+int main() {
+    SegTree<int, Max<int>> xds(100005);	// MAX
+    vector<int> ret;
+    int n;
+    cin >> n;
+    while (n--) {
+        int l, r;
+        cin >> l >> r;
+        l--;
+        int ans = xds.query(l, r) + 1;
+        ret.push_back(ans);
+        xds.update(l, r, ans);
+    }
+    for(int item: ret)
+        cout << item << endl;
+    return 0;
+~~~
 
 
