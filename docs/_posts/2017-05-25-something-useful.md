@@ -169,11 +169,14 @@ if(!ret.second)
 
 class cmp{
 public:
-    bool operator()(pair<ll,ll> p1, pair<ll,ll> p2){
-        return p1.first*p1.second > p2.first*p2.second;	// 由小到大
+	bool operator()(pair<ll,ll> p1, pair<ll,ll> p2){
+		return p1.first*p1.second > p2.first*p2.second;	// 由小到大
 	}
 };
 priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, cmp> q;
+
+auto comp = [](pair<int,int> a, pair<int,int> b) { return a.second > b.second; };
+priority_queue<pair<int, int>, vector<pair<int,int>>, decltype(comp)> p(comp);
 
 reverse(v.begin(), v.end());
 sort(v.begin(), v.end());
