@@ -10,6 +10,7 @@ description:
 ## Table of Contents
 
 - java
+- C++
 - 算法
 
 ---
@@ -154,18 +155,8 @@ List<Integer> filter_num = list.stream().filter(num -> num % 2 == 0).collect(Col
 ~~~cpp
 getline(cin, line);
 
-vector<int> v(n, val);
-vector<int> v = {1, 2, 3, 4};
-
 set<int> iset(ivec.begin(), ivec.end());
 set1.insert(set2.begin(), set2.end());
-
-auto map_it = map.begin();
-cout << map_it->first << map_it->second;
-
-auto ret = map.insert(make_pair(key, value));
-if(!ret.second)
-	ret.first->second++;
 
 class cmp{
 public:
@@ -173,14 +164,14 @@ public:
 		return p1.first < p2.first;	// 由小到大
 	}
 };
+bool cmp1(pair<int,int> p1, pair<int,int> p2){
+    return p1.second < p2.second;
+}
 priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, cmp> q;
+priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, cmp1> q;
 
 auto comp = [](pair<int,int> a, pair<int,int> b) { return a.second > b.second; };
 priority_queue<pair<int, int>, vector<pair<int,int>>, decltype(comp)> p(comp);
-
-reverse(v.begin(), v.end());
-sort(v.begin(), v.end());
-max_element(v.begin(), v.end());
 
 numeric_limits<int>::max()
 ~~~
@@ -211,6 +202,33 @@ vector<string> split(const  string& s, const string& delim) {
     }
     return elems;
 }
+
+### 3.unordered_map
+~~~cpp
+auto map_it = map.begin();
+cout << map_it->first << map_it->second;
+
+auto ret = map.insert(make_pair(key, value));
+if(!ret.second)
+	ret.first->second++;
+
+struct hashfunc {
+	template<typename T, typename U>
+	size_t operator()(const pair<T, U> &x) const {
+		return hash<T>()(x.first) ^ hash<U>()(x.second);
+	}
+};
+unordered_map<pair<int, int>, int, hashfunc> func_map;
+~~~
+
+### 4.others
+~~~cpp
+int func(int i) { return pow(i,2); }
+transform(v1.begin(), v1.end(), v1.begin(),func);	// python的map操作
+
+int func(int i, int j){ return i+j; }
+cout << accumulate(v1.begin(), v1.end(), 0,func);	// python的reduce操作
+~~~
 
 ~~~
 ## 算法
