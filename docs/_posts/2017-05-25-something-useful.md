@@ -158,10 +158,9 @@ getline(cin, line);
 set<int> iset(ivec.begin(), ivec.end());
 set1.insert(set2.begin(), set2.end());
 
-class cmp{
-public:
+struct cmp{
 	bool operator()(pair<ll,ll> p1, pair<ll,ll> p2){
-		return p1.first < p2.first;	// 由小到大
+		return p1.first < p2.first;		// 由小到大
 	}
 };
 bool cmp1(pair<int,int> p1, pair<int,int> p2){
