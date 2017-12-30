@@ -170,7 +170,7 @@ if(!ret.second)
 class cmp{
 public:
 	bool operator()(pair<ll,ll> p1, pair<ll,ll> p2){
-		return p1.first*p1.second > p2.first*p2.second;	// 由小到大
+		return p1.first < p2.first;	// 由小到大
 	}
 };
 priority_queue<pair<ll, ll>, vector<pair<ll, ll>>, cmp> q;

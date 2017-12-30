@@ -39,13 +39,13 @@ description: 本文转载自[树状数组(Binary Indexed Trees)]
 
 给定索引`idx`，如果我们想获取累积频率即`c[idx]`，我们只需初始化`sum=0`, 然后当`idx>0`时，重复以下操作：`sum`加上`tree[idx]`, 然后将`idx`最后的1去掉。
 
-~~~python
-def get_c(idx):
-    sum = 0
-    while idx > 0:
-        sum += tree[idx]
-        idx -= idx & -idx
-    return sum
+~~~java
+int sum(int idx):
+	ret = 0;
+	for(int i = idx; i > 0; i -= i & -i) {
+		ret += tree[i];
+	}
+	return ret;
 ~~~
 
 二维
@@ -69,11 +69,11 @@ int sum(int row, int col, int[][] arr) {
 
 在读取累积频率一节，我们每累加一次`tree[idx]`，就将`idx`最后一个1移除， 然后重复该操作。而如果我们改变了f数组，比如`f[idx]`增加`val`，我们则需要为当前索引的tree数组增加`val`：`tree[idx]　+= val`。然后`idx`更新为`idx`加上其最后的一个`1`。当`idx`不大于`MaxVal`时，不断重复上面的两个操作。
 
-~~~python
-def update(idx, val):
-    while idx <= MaxVal:
-        tree[idx] += val
-        idx += idx & -idx
+~~~cpp
+void update(int idx, int val):
+	for(int i = idx; i <= N; i += i & -i) {
+		tree[i][j] += val;
+	}
 ~~~
 
 二维
