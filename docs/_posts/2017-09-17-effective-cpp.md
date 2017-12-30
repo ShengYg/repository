@@ -203,6 +203,7 @@ A& A::operator=(const A& rhs){
 ### 13. 以对象管理资源
 
 - 用`shared_ptr`管理资源，以便做到自动释放资源，即使中途会发生不可测的事件
+- 用一个新的对象存储需要被自动释放的资源，依靠对象的析构函数释放资源。
 - 在资源管理类中发生拷贝操作时，采用智能指针而非普通指针，避免错误释放资源
 - 获得原始指针：`get()`函数，注意此时内存并没有释放
 - 用独立语句将新建对象置入智能指针中
@@ -320,7 +321,7 @@ swap(...)		// 调用时不加std
 (T)expression
 T(expression)
 const_cast<T>(expression)	// 移除常量性
-dynamic_cast<T>(expression)	// 执行安全的向下转型，可能耗费巨大
+dynamic_cast<T>(expression)	// 执行运行期安全的向下转型，可能耗费巨大，类含有虚函数
 reinterpret_cast<T>(expression)	// 执行低级转型，依赖于编译器，不可移植
 static_cast<T>(expression)	// 强迫隐式转换
 ~~~
