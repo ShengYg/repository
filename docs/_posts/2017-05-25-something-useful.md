@@ -229,7 +229,6 @@ int func(int i, int j){ return i+j; }
 cout << accumulate(v1.begin(), v1.end(), 0,func);	// python的reduce操作
 ~~~
 
-~~~
 ## 算法
 
 ### dp递推

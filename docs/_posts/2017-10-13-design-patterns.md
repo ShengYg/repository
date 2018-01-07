@@ -31,83 +31,27 @@ description: C++ design patterns
   - [备忘录](#memento)
   - [观察者](#observer)
   - [状态](#state)
-  - [策略]
+  - [策略](#strategy)
   - [模板方法]
   - [访问者]
 
 
 ----
 <a name='factory'></a>
-## 工厂模式
-通过**不同的工厂**可以生产**不同的产品**。
+## 抽象工厂模式 Abstract Factory
+用处：创建不同的产品的不同系列，每个产品有相应的继承类（不同系列）。
+
+缺点：难以添加新的产品种类
+
+实现抽象工厂的有用技术：
+1. 将具体工厂作为单例
+2. 具体工厂生产具体产品时，为每个产品定义一个工厂方法（虚函数）
+3. 抽象工厂不是抽象类，它只是所有抽象工厂方法的一个集合
+
 <center>
 <img src="{{ site.baseurl }}/assets/pic/factory.png" height="400px" >
 </center>
-### 简单工厂模式 Simple Factory Pattern
-缺点：增加新的类型时，需要修改工厂类
-~~~cpp
-enum CTYPE {COREA, COREB};
-class SingleCore {
-public:
-    virtual void Show() = 0;
-};
-class SingleCoreA: public SingleCore {
-public:
-    void Show() { cout<<"SingleCore A"<<endl; }
-};
-class SingleCoreB: public SingleCore {
-public:
-    void Show() { cout<<"SingleCore B"<<endl; }
-};
 
-class Factory {
-public:
-    SingleCore* CreateSingleCore(enum CTYPE ctype)
-    {
-        if(ctype == COREA)
-            return new SingleCoreA();
-        else if(ctype == COREB)
-            return new SingleCoreB();
-        else
-            return nullptr;
-    }
-};
-~~~
-
-### 工厂方法模式 Factory Method Pattern
-缺点：每增加一种产品，就需要增加一个对象的工厂
-~~~cpp
-class SingleCore {
-public:
-    virtual void Show() = 0;
-};
-class SingleCoreA: public SingleCore {
-public:
-    void Show() { cout<<"SingleCore A"<<endl; }
-};
-class SingleCoreB: public SingleCore {
-public:
-    void Show() { cout<<"SingleCore B"<<endl; }
-};
-
-class Factory {
-public:
-    virtual SingleCore* CreateSingleCore() = 0;
-};
-
-class FactoryA: public Factory {
-public:
-    SingleCoreA* CreateSingleCore() { return new SingleCoreA; }
-};
-
-class FactoryB: public Factory {
-public:
-    SingleCoreB* CreateSingleCore() { return new SingleCoreB; }
-};
-~~~
-
-### 抽象工厂模式 Abstract Factory
-优点：每个工厂可以生产多个产品
 ~~~cpp
 class SingleCore {
 public:
@@ -125,8 +69,8 @@ public:
 // MultiCore ...
 class CoreFactory {
 public:
-    virtual SingleCore* CreateSingleCore() = 0;
-    virtual MultiCore* CreateMultiCore() = 0;
+    virtual SingleCore* CreateSingleCore();
+    virtual MultiCore* CreateMultiCore();
 };
 
 class FactoryA :public CoreFactory {
@@ -147,15 +91,22 @@ public:
 <center>
 <img src="{{ site.baseurl }}/assets/pic/builder.png" height="400px" >
 </center>
-在导向者的控制下一步一步构造不同的产品。区别于工厂模式，这里只有**一个导向者**，且不同产品含有多个步骤，总的生产方法基本一致。
+在导向者的控制下一步一步构造不同的产品。
+与抽象工厂类似，不同点在于：
+1. 抽象工厂中每个方法生成一个产品，具体调用时只需调用具体一个方法。建造者模式中每个方法是生产产品的**某一步骤**，生产产品时需要调用多个方法。
+2. 抽象工厂的不同派生类表示同一产品的不同系列，建造者模式的派生类表示生产步骤互不相同的不同产品。
+
+因此，建造者模式的特点在于它隐藏了建造某物品的**内部结构与步骤**。
+
+> 建造者模式基类**不能是抽象基类**，因为其派生类可能只会利用其中一部分方法（生产产品时不需要所有步骤）。
+
 ~~~cpp
 class Builder {
 public:
     virtual void BuildHead() {}
     virtual void BuildBody() {}
 }; 
-class ThinBuilder : public Builder
-{
+class ThinBuilder : public Builder{
 public:
     void BuildHead() { cout<<"build thin body"<<endl; }
     void BuildBody() { cout<<"build thin head"<<endl; }
@@ -181,7 +132,7 @@ public:
 
 <a name='prototype'></a>
 ## 原型模式
-用原型实例指定创建对象的种类，并且通过**拷贝**这些原型创建新的对象。
+当系统需要大量子类时，可以通过**拷贝**其中的一个实例来创建新的子类，称其为原型。原型需要有对应的`clone()`方法。
 
 <center>
 <img src="{{ site.baseurl }}/assets/pic/prototype.png" height="200px" >
@@ -299,7 +250,16 @@ mutex Singleton::m_mutex;
 
 <a name='adapter'></a>
 ## 适配器模式 Adapter
-适配器模式将一个类的接口转换成客户希望的另外一个接口，使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。举个例子，在STL中就用到了适配器模式。STL实现了一种数据结构，称为双端队列，支持前后两段的插入与删除。STL实现栈和队列时，没有从头开始定义它们，而是直接使用双端队列实现的。这里双端队列就扮演了适配器的角色。
+适用场景：想要用一个已知类，但它的接口和当前的类不匹配。举个例子，STL实现了一种数据结构，称为双端队列，支持前后两段的插入与删除。STL实现栈和队列时，没有从头开始定义它们，而是直接使用双端队列实现的。这里双端队列就扮演了适配器的角色。
+
+分类：
+- 类适配器：adapter公有继承target，私有继承adaptee
+- 对象适配器：adapter公有继承target，并维护一个指向adaptee的成员
+
+不同点：
+- 类适配器：adapter可以重定义adaptee的某些方法
+- 对象适配器：一个adapter可以适配多个adaptee（比如adaptee及其子类）
+
 <center>
 <img src="{{ site.baseurl }}/assets/pic/adapter.png" height="400px" >
 </center>
@@ -338,13 +298,17 @@ private:
 
 <a name='bridge'></a>
 ## 桥接模式 Bridge
-类似工厂模式，工厂模式负责创建对象，而桥接模式负责将抽象部分与它的实现部分分离，使它们都可以独立地变化。考虑装操作系统，有多种配置的计算机，同样也有多款操作系统。可以将操作系统和计算机分别抽象出来，让它们各自发展，减少它们的耦合度。
+抽象类定义了一系列接口，并保存实现类的指针，其派生类可以扩展接口；实现类包含具体的实现方法。
+
+抽象类需要获得正确的实现类引用（基类还是派生类），可以通过一个单例的工厂模式实现。
+
+考虑装操作系统，有多种配置的计算机，同样也有多款操作系统。可以将操作系统和计算机分别抽象出来，让它们各自发展，减少它们的耦合度。
 <center>
 <img src="{{ site.baseurl }}/assets/pic/bridge.png" height="200px" >
 </center>
 
 ~~~cpp
-class OS {
+class OS {		// 实现类
 public:
     virtual void InstallOS_Imp() {}
 };
@@ -361,7 +325,7 @@ public:
     void InstallOS_Imp() { cout<<"安装Unix操作系统"<<endl; }
 };
 
-class Computer {
+class Computer {	// 抽象类
 public:
     virtual void InstallOS(OS *os) {}
 };
@@ -442,6 +406,16 @@ public:
 <a name='decorator'></a>
 ## 装饰模式 Decorator
 动态地给一个对象添加一些**额外的职责**。就增加功能来说，装饰模式相比生成子类更为灵活。有时我们**希望给某个对象而不是整个类添加一些功能**。比如有一个手机，允许你为手机添加特性，比如增加挂件、屏幕贴膜等。一种灵活的设计方式是，将手机嵌入到另一对象中，由这个对象完成特性的添加，我们称这个嵌入的对象为装饰。这个装饰与它所装饰的**组件接口一致**，因此它对使用该组件的客户透明。
+
+构成：
+- component定义了相关操作
+- decorator继承自component，并保留了一个指向component的指针。
+- decorator的方法对具体的某个component进行操作。
+
+注意：
+- 没有必要设计抽象的decorator类
+- 当component很大时，采用decorator代价高，可以改成策略模式。装饰器对某个对象进行包装，策略模式进行内核上的改变
+
 <center>
 <img src="{{ site.baseurl }}/assets/pic/decorator.png" height="400px" >
 </center>
@@ -495,7 +469,7 @@ private:
 
 <a name='facade'></a>
 ## 外观模式 Facade
-系统提供给客户的是一个**简单的对外接口**，而把里面复杂的结构都封装了起来。客户只需使用这些简单接口就能使用这个系统，而不需要关注内部复杂的结构。
+系统提供给客户的是一个**简单的对外接口**，而把里面复杂的结构都封装了起来。客户只需使用这些简单接口就能使用这个系统，而不需要关注内部复杂的结构。通常为**单例模式**。
 <center>
 <img src="{{ site.baseurl }}/assets/pic/facade.png" height="200px" >
 </center>
@@ -605,13 +579,20 @@ public:
 
 <a name='proxy'></a>
 ## 代理模式 Proxy
-为其他对象提供一种代理以控制对这个对象的访问。有四种常用的情况：
-1. 远程代理
-2. 虚代理
-3. 保护代理
+为其他对象提供一种代理以**控制访问对象**，原因是有的对象使用开销大，只有在确实需要时才对它进行访问。
+
+有四种常用的情况：
+1. 远程代理：为同一个对象在不同地址空间提供局部代表
+2. 虚代理：根据需要创建开销很大的对象
+3. 保护代理：处理有不同访问权限的对象
 4. 智能引用
 
 例子： 考虑一个可以在文档中嵌入图形对象的文档编辑器。有些图形对象的创建开销很大。这里就可以运用代理模式，在打开文档时，并不打开图形对象，而是打开图形对象的代理以替代真实的图形。待到真正需要打开图形时，仍由代理负责打开。
+
+注意：
+- proxy与subject**接口相同**（可以让它们同时继承一个基类），且保存一个指向subject的指针。
+- 重载->操作符，使得proxy能够直接调用subject的方法，让proxy表现的像一个指针
+- proxy可以通过接口处理所有subject类，而不需为每个subject定义一个对应的proxy，除非想用proxy实例化subject。
 
 <center>
 <img src="{{ site.baseurl }}/assets/pic/proxy.png" height="300px" >
@@ -648,7 +629,7 @@ public:
 
 <a name='chain'></a>
 ## 职责链模式 chain of responsibility
-使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。考虑员工要求加薪。公司的管理者一共有三级，总经理、总监、经理，如果一个员工要求加薪，应该向主管的经理申请，如果加薪的数量在经理的职权内，那么经理可以直接批准，否则将申请上交给总监。总监的处理方式也一样，总经理可以处理所有请求。这就是典型的职责链模式，请求的处理形成了一条链，直到有一个对象处理请求。
+适用场景：向多个对象发出请求，并且不知道该哪个对象处理时，将这些对象**连成一条链**，并沿着这条链传递该请求，直到有一个对象处理它为止。例子：考虑员工要求加薪，公司的管理者一共有三级，总经理、总监、经理，如果一个员工要求加薪，应该向主管的经理申请，如果加薪的数量在经理的职权内，那么经理可以直接批准，否则将申请上交给总监。总监的处理方式也一样，总经理可以处理所有请求。这就是典型的职责链模式，请求的处理形成了一条链，直到有一个对象处理请求。
 
 <center>
 <img src="{{ site.baseurl }}/assets/pic/chain.png" height="300px" >
@@ -695,11 +676,26 @@ public:
         cout<<"总经理"<<m_name<<"批准"<<name<<"加薪"<<num<<"元"<<endl<<endl;
     }
 };
+
+int main(){
+    Manager *general = new GeneralManager(NULL, "A");
+    Manager *majordomo = new Majordomo(general, "B");
+    Manager *common = new CommonManager(majordomo, "C");
+    common->DealWithRequest("D",300);			//员工D要求加薪
+    common->DealWithRequest("E", 600);
+    common->DealWithRequest("F", 1000);
+    delete common; delete majordomo; delete general;
+    return 0;
+}
 ~~~
 
 <a name='mediator'></a>
 ## 中介者模式 mediator
-用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。
+用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。例子：房东和房客保留了中介的指针，当他们需要交互时，向中介发送请求。中介保留了房东和房客的指针，处理他们之间的信息交互。
+
+实现：
+- 忽略抽象中介类
+- 将中介实现成**观察者模式**，一旦subject状态发生变化就通知中介
 
 <center>
 <img src="{{ site.baseurl }}/assets/pic/mediator.png" height="300px" >
@@ -750,11 +746,24 @@ public:
             m_A->GetMessage(message);
     }
 };
+int main() {
+    Mediator *mediator = new HouseMediator();
+    Person *person1 = new Renter();
+    Person *person2 = new Landlord();
+    mediator->SetA(person1);
+    mediator->SetB(person2);
+    person1->SetMediator(mediator);
+    person2->SetMediator(mediator);
+    person1->SendMessage("我想在南京路附近租套房子，价格800元一个月\n");
+    person2->SendMessage("出租房子：南京路100号，70平米，1000元一个月\n");
+    delete person1; delete person2; delete mediator;
+    return 0;
+} 
 ~~~
 
 <a name='memento'></a>
 ## 备忘录模式 memento
-在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态。这样以后就可将该对象恢复到原先保存的状态。例如，游戏中的保存进度。
+在不破坏封装性的前提下，捕获一个对象的**内部状态**，并在该对象之外保存这个状态。这样以后就可将该对象恢复到原先保存的状态。例如，游戏中的保存进度。
 
 <center>
 <img src="{{ site.baseurl }}/assets/pic/memento.png" height="200px" >
@@ -944,9 +953,74 @@ public:
 };
 ~~~
 
+<a name='strategy'></a>
+## 策略模式 strategy
+策略模式是指定义一系列的算法，把它们一个个封装起来，并且使它们可相互替换。本模式使得算法可独立于使用它的客户而变化。也就是说这些算法所完成的功能一样，对外的接口一样，只是各自实现上存在差异。用策略模式来封装算法，效果比较好。例子：高速缓存。
 
+<center>
+<img src="{{ site.baseurl }}/assets/pic/strategy.png" height="200px" >
+</center>
 
+~~~cpp
+class ReplaceAlgorithm {
+public:
+    virtual void Replace() = 0;
+};
+class LRU_ReplaceAlgorithm : public ReplaceAlgorithm {
+public:
+    void Replace() { cout<<"Least Recently Used replace algorithm"<<endl; }
+};
+class FIFO_ReplaceAlgorithm : public ReplaceAlgorithm {
+public:
+    void Replace() { cout<<"First in First out replace algorithm"<<endl; }
+};
+class Random_ReplaceAlgorithm: public ReplaceAlgorithm {
+public:
+    void Replace() { cout<<"Random replace algorithm"<<endl; }
+};
 
+// 传入一个特定算法的指针
+class Cache {
+private:
+    ReplaceAlgorithm *m_ra;
+public:
+    Cache(ReplaceAlgorithm *ra) { m_ra = ra; }
+    ~Cache() { delete m_ra; }
+    void Replace() { m_ra->Replace(); }
+};
+
+// 传入一个标签
+enum RA {LRU, FIFO, RANDOM};
+class Cache {
+private:
+    ReplaceAlgorithm *m_ra;
+public:
+    Cache(enum RA ra)
+    {
+        if(ra == LRU)
+            m_ra = new LRU_ReplaceAlgorithm();
+        else if(ra == FIFO)
+            m_ra = new FIFO_ReplaceAlgorithm();
+        else if(ra == RANDOM)
+            m_ra = new Random_ReplaceAlgorithm();
+        else
+            m_ra = NULL;
+    }
+    ~Cache() { delete m_ra; }
+    void Replace() { m_ra->Replace(); }
+};
+
+// 传入一个模板实参
+template <class RA>
+class Cache {
+private:
+    RA m_ra;
+public:
+    Cache() { }
+    ~Cache() { }
+    void Replace() { m_ra.Replace(); }
+};
+~~~
 
 
 
