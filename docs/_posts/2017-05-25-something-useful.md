@@ -173,6 +173,7 @@ auto comp = [](pair<int,int> a, pair<int,int> b) { return a.second > b.second; }
 priority_queue<pair<int, int>, vector<pair<int,int>>, decltype(comp)> p(comp);
 
 numeric_limits<int>::max()
+iota(v.begin(), v.end(), 0);	// range(0,n,1)
 ~~~
 
 ### 2.transformation
