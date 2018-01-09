@@ -14,9 +14,21 @@ description: effective modern c++
   - [02. 理解auto类型推断](#02)
   - [03. 理解decltype](#03)
   - [04. 懂得如何查看已推断类型](#04)
+- 第2章 auto
+  - [05. 尽量用auto代替显式类型声明](#05)
+  - [06. 当auto推断不合理时使用显式类型初始化语法](#06)
+- 第3章 modern C++
+  - [07. 创建对象时区分( )和{ }](#07)
+  - [08. 用nullptr代替0和NULL](#08)
+  - [09. 用别名声明(alias declaration)代替typedef](#09)
+  - [10. 比起unscoped enums更偏爱scoped nums](#10)
+  - [11. 用deleted functions代替private undefined的做法](#11)
+  - [12. 把重写函数(overriding function)声明为override](#12)
 - 第6章 lambda函数
   - [31. 避免使用默认捕获模式](#31)
   - [32. 使用初始化捕获来把对象移动到闭包](#32)
+  - [33. 对需要std::forward的auto&&参数使用decltype](#33)
+  - [34. 比起std::bind更偏向使用lambda](#34)
 
 ---
 
@@ -228,7 +240,7 @@ TD<decltype(x)> xType;
 std::cout << typeid(x).name() << std::endl;
 ~~~
 
-使用`Boost.TypeIndex`得到准确信息
+使用`Boost.TypeIndex`可以得到准确的类型信息
 ~~~cpp
 #include <boost/type_index.hpp>
 template <typename T>
@@ -243,6 +255,308 @@ void f(const T& param){
          << type_id_with_cvr<decltype(param)>().pretty_name();
 }
 ~~~
+
+<a name='05'></a>
+### 05. 尽量用auto代替显式类型声明
+用`auto`的好处：
+1. 强制初始化
+~~~cpp
+auto x = 10;
+~~~
+2. 避免冗长的类型声明
+~~~cpp
+std::iterator_traits<It>::value_type currValue = *b
+~~~
+3. 有能力直接持有闭包
+~~~cpp
+std::function<bool(const std::unique_str<Widget> &, const std::unique_str<Widget> &)>
+	derefUPLess = [](const std::unique_str<Widget> &p1, 
+		const std::unique_str<Widget> &p2) 
+		{ return *p1 < *p2; };
+// C++14
+auto derefLess = [](const auto &p1, const auto &p2) { return *p1 < *p2; };
+~~~
+`std::function`声明的变量通过实例化模板而持有闭包，使用的内存总是比`auto`类型推断的对象多。`std::function`由于其实现细节而限制了内联，并且是间接函数调用，所以几乎可以肯定的会比`auto`类型推断的对象中调用要慢。
+4. 避免类型截断这个问题
+~~~cpp
+std::vector<int> v;
+unsigned sz = v.size();
+std::vector<int>::size_type sz = v.size();
+~~~
+`unsigned`是32位，而`std::vector<int>::size_type`与系统相关
+5. 避免无心的错误
+~~~
+std::unordered_map<std::string,int> m;
+for (const std::pair<const std::string, int> &p : m) { }
+// 如果不加第二个const，会增加许多无用的转换
+~~~
+
+> 总结：尽量使用`auto`，并注意[条款02](#02)与[条款04](#04)的陷阱
+
+<a name='06'></a>
+### 06. 当auto推断不合理时使用显式类型初始化语法
+#### 1. auto无法处理不想让用户知道的代理类
+~~~cpp
+std::vector<bool> features(const Widget &w) { }
+bool highPriority = features(w)[5];
+~~~
+通常`operator[]`函数应该是返回`T&`类型，但是`std::vector<bool>`容器是以位(bit)的方式来存储bool变量，而C++无法引用位，因此只能返回一个行为类似`bool&`的对象。`std::vector<bool>::reference`的一种实现是该对象内有一个指向容器内字(word)数据结构的偏移量特定个位(bit)数的指针。使用`auto`推断时，`highPriority`是对`reference`的拷贝。当构造函数结束，`reference`析构，`highPriority`成了一个悬空指针。
+
+类似的还有`Matrix sum = m1 + m2 + m3 + m4;`中，`operator+`会返回代理类
+
+#### 2. 显式类型初始化语法
+对于上述问题，`auto`推断出的类型是代理类，而不是代理类所代理的类。
+
+**显式类型初始化语法**用auto声明变量，但是初始化表达式显式说明你想要auto推断的类型
+~~~cpp
+// 对代理类进行转换
+auto highPriority = static_cast<bool>(features(w)[5]);
+auto sum = static_cast<Matrix>(m1 + m2 + m3 + m4);
+// 其他转换
+auto ep = static_cast<float>(calcEpsilon())
+~~~
+
+<a name='07'></a>
+### 07. 创建对象时区分( )和{ }
+因为初始化的语法很混乱，而且有些情况无法实现，所以C++11提出了提出了统一初始化语法：**大括号初始化**。
+
+~~~cpp
+// 初始化
+std::vector<int> v{1, 3, 5};
+
+// 类内成员初始化
+class Widget {
+	int x{ 0 };
+	int y( 0 );	// wrong
+	int z = 0;
+}
+
+// 拷贝对象
+std::atomic<int> ai1{ 0 };
+std::atomic<int> ai2( 0 );
+std::atomic<int> ai3 = 0;	// wrong
+
+// 隐式类型转换
+double x, y, z;
+int sum1{x + y + z};	// wrong
+int sum2(x + y + z);
+int sum3 = x + y + z;
+
+// most vexing parse
+Widget w1(10);	// 带参构造函数
+Widget w2();	// 歧义，声明函数，而非无参构造函数
+Widget w3{};	// 无参构造函数
+~~~
+
+缺点：如果构造函数的形参带有`std::initializer_list`，调用构造函数时大括号初始化语法会强制使用带`std::initializer_list`参数的重载构造函数，包括正常的拷贝构造和赋值构造。
+
+~~~cpp
+std::vector<int> v1(10, 20);
+std::vector<int> v2{10, 20};
+~~~
+
+在模板中问题更加明显。这正是标准库函数`std::make_unique`和`std::make_shared`所面临的一个问题[条款21](#21)。这些函数的解决办法是强制要求把参数写在圆括号内，然后在接口中说明这个决策。
+
+~~~cpp
+template <typename T, typename... Ts>
+void doSomeWork(Ts&&... params) {
+	T localObject(std::forward<Ts>(params)...);
+	T localObject{std::forward<Ts>(params)...};
+}
+
+std::vector<int> v;
+doSomeWork<std::vector<int>>(10,20);	// 歧义
+~~~
+
+<a name='08'></a>
+### 08. 用nullptr代替0和NULL
+> `nullptr`的实际类型是`std::nullptr_t`，是可以隐式转换为**所有类型的原生指针**。
+
+例子：3个函数有不同的指针类型，通过`nullptr`设计模板实现重载
+~~~cpp
+int f1(std::shared_ptr<Widget> spw);
+double f2(std::unique_ptr<Widget> upw);
+bool f3(Widget *pw);
+
+std::mutex f1m, f2m, f3m;	// f1，f2， f3的互斥锁
+using MuxGuard = std::lock_guard<std::mutex>;
+
+template <typename FuncType, typename MuxType, typename PtrType>
+auto lockAndCall(FuncType func, MuxType &mutex, PtrType ptr) -> decltype(func(ptr)){
+	MuxGuard g(mutex);
+	return func(ptr);
+}
+
+auto result = lockAndCall(f3, f3m, nullptr);	// nullptr支持各种隐式转换
+~~~
+
+<a name='09'></a>
+### 09. 用别名声明(alias declaration)代替typedef
+一些简单的区别：
+~~~cpp
+typedef std::unique_ptr<std::unordered_map<std::string, std::string>> UPtrMapSS;
+using UPtrMapSS = std::unique_ptr<std::unordered_map<std::string, std::string>>;
+
+typedef void (*PF)(int, const std::string &);
+using PF = void (*)(int, const std::string &);
+~~~
+
+> typedef不支持模板化，但别名声明(alias declaration)支持。
+
+~~~cpp
+// using
+template <typename T>
+using MyAllocList = std::list<T, MyAlloc<T>>;
+
+template <typename T>
+class Widget {
+	MyAllocList<T> list;	// 在模板中创建list
+};
+
+MyAllocList<Widget> lw;		// 创建list
+
+// typedef
+template <typename T>
+struct MyAllocList { 
+  typedef std::list<T, MyAlloc<T>> type;
+};
+
+template <typename T>
+class Widget {
+	typename MyAllocList<T>::type list;
+};
+
+MyAllocList<Widget>::type lw;
+~~~
+
+头文件`<type_traits>`中包含了进行类型转换的工具，C++14对其进行了改变
+~~~cpp
+// C++11
+std::remove_const<T>::type 		// const T → T
+std::remove_reference<T>::type 		// T&/T&& → T
+std::add_lvalue_reference<T>::type 	// T → T&
+
+// C++14
+std::remove_const_t<T>
+std::remove_reference_t<T>
+std::add_lvalue_reference_t<T>
+~~~
+
+<a name='10'></a>
+### 10. 比起unscoped enums更偏爱scoped nums
+#### 1. `scoped enum`减少命名空间污染
+~~~cpp
+// unscoped enums
+enum Color { black, white, red };
+auto white = false;		// 错误，当前作用域已经声明了white
+
+// scoped enums
+enum class Color { black, white, red };
+auto white = false;
+Color c = white;		// wrong
+Color c = Color::white;
+auto c = Color::white;
+~~~
+
+#### 2. `scoped enum`枚举值无法被隐式转换为其他类型，需要`cast`来转换
+#### 3. `scoped enum`可以前向声明(forward-declaration)，它可以不带值地声明枚举的名字；`unscoped enum`也可以前向声明，不过需要额外的工作。这是因为`scoped enum`的基础类型总是int，而对于`unscoped enum`需要指定它的类型。
+~~~cpp
+enum Color;		// wrong
+enum class Color;	// right
+
+enum class Status;			// 基础类型是int
+enum class Status: std::uint32_t;	// 基础类型是uint32_t
+~~~
+
+<a name='11'></a>
+### 11. 用deleted functions代替private undefined的做法
+> 优势1：删除的函数在任何方式上都无法使用，所以在成员或者友元中尝试操作对象会无法通过编译，这样就不用到链接期间才诊断出不合法使用。
+
+**被删除函数**声明为public，而不是private。当用户代码尝试调用一个成员函数时，C++会在检查它的删除状态位之前检查它的可获取性(即是否为public)
+~~~cpp
+template <class charT, class traits = char_traits<char T>>
+class basic_ios : public ios_base {
+public:
+	...
+private:
+	basic_ios(const basic_ios&);
+	basic_ios& operator=(const basic_ios&);
+};
+
+template <class charT, class traits = char_traits<char T>>
+class basic_ios : public ios_base {
+public:
+	basic_ios(const basic_ios&) = delete;
+	basic_ios& operator=(const basic_ios&) = delete;
+};
+~~~
+
+> 优势2：删除的函数可以用于任何函数，而private只能用在成员函数中，这会影响**重载函数**
+
+~~~cpp
+bool isLucky(int number);
+bool isLucky(char) = delete; 
+~~~
+
+> 优势3：删除的函数可以防止模板使用不想要的**类型实例化**。
+
+~~~cpp
+template <typename T> 
+void processPointer(T *ptr);
+template<>
+void processPointer<void>(void *) = delete;
+template<>
+void processPointer<const void>(const void *) = delete;
+
+class Widget {
+public:
+	template <typename T>
+	void processPointer(T *ptr) {...}
+private:
+	template<>	// 错误，成员模板的特例化与主模板的访问权限不相同是不可能
+	void processPointer<void>(void *);
+};
+template<>		// 正确
+void Widget::processPointer<void>(void *) = delete;
+~~~
+
+<a name='12'></a>
+### 12. 把重写函数(overriding function)声明为override
+
+派生类经常需要重写基类的虚函数。重写函数需要遵循：
+- 基类的函数必须是虚函数(virtual)
+- 基类和派生类的函数名字必须相同(除了析构函数)
+- 基类和派生类的函数参数必须相同
+- 基类和派生类的const属性必须相同
+- 基类和派生类的返回类型和异常规范(exception specifications)必须兼容
+- **C++11新增**：函数的引用限定符(reference qualifiers)必须相同
+
+~~~cpp
+class Widget {
+public:
+	using DataType = std::vector<double>;
+	DataType& data() & { return values; }
+	DataType data() && { return std::move(values); }
+private:
+	DataType values;
+};
+
+Widget makeWidget();
+Widget w;
+auto vals1 = w.data();			// 调用左值引用
+auto vals2 = makeWidget().data();	// 调用右值引用
+~~~
+
+声明为`override`可以强制编译器提醒错误
+
+~~~cpp
+class Derived: public Base {
+public:
+    virtual void f() const override;
+};
+~~~
+
+
 
 
 <a name='31'></a>
@@ -348,7 +662,7 @@ auto func = std::bind(
 ~~~
 
 <a name='33'></a>
-### 33. 
+### 33. 对需要std::forward的auto&&参数使用decltype
 
 
 
