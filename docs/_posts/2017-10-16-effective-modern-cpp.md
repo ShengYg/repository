@@ -559,6 +559,200 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name='23'></a>
+### 23. 理解std::move和std::forward
+`std::move`不会移动任何东西，`std::forward`不会转发任何东西，在运行期间，它们什么事情都不会做。`std::move`和`std::forward`仅仅是表现为**转换类型的函数**（实际上是模板函数），`std::move`无条件地把参数转换为右值，而`std::forward`在满足条件下才会执行`std::move`的转换。
+
+> `std::move`接收一个对象的引用（准确地说，是**通用引用**），然后返回相同对象的**右值引用**。
+
+近似的实现方式如下：
+~~~cpp
+// C++11
+template <typename T>
+typename remove_reference<T>::type&& move(T&& param) {
+	using ReturnType = typename remove_reference<T>::type&&;
+	return static_cast<ReturnType>(param);
+}
+
+// C++14
+template <typename T>
+decltype(auto) move(T&& param) {
+	using ReturnType = remove_reference_t<T>&&;
+	return static_cast<ReturnType>(param);
+}
+~~~
+注意：想移动对象时，不要声明为`const`
+
+> `std::forward`仅当参数是用右值初始化时，才会把它转换为右值。具体如何操作见[条款28](#28)。
+
+通常`std::forward`可以替代`std::move`，但也有不同点：
+- `std::move`通常会造成移动，而`std::forward`只是传递转发一个对象给另一个函数，而保持原来的左值性质或者右值性质
+- `std::move`需要更少的类型，不用传递类型参数
+
+~~~cpp
+class Widget {
+public:
+	// 两种实现
+	Widget(Widget&& rhs) : s(std::move(rhs.s)) { ++moveCtorCalls; }
+	Widget(Widget&& rhs) : s(std::forward<std::string>(rhs.s)) { ++moveCtorCalls; }
+private:
+	static std::size_t moveCtorCalls;
+	std::string s;
+};
+~~~
+
+<a name='24'></a>
+### 24. 区分通用引用和右值引用
+`T&&`由两种含义：
+- 右值引用
+- 通用引用：既可以绑定左值，也可以绑定右值
+
+~~~cpp
+// 右值引用
+void f(Widget&& param);
+Widget&& var1 = Widget();
+template<typename T> void f(std::vector<T>&& param);
+
+// 不是右值引用
+auto&& var2 = var1;
+template<typename T> void f(T&& param);
+~~~
+
+通用引用通常出现在含有类型推断的地方，常见的有**`auto&&`和模板**。如果初始值是个左值，通用引用相当于左值引用，如果初始值是个右值，通用引用相当于右值引用。
+
+#### 1. 模板
+
+> 注意：通用引用必须精确地定义为`T&&`且含有类型推断
+
+~~~cpp
+template<typename T>
+void f(std::vector<T>&& param);	// param是vector&&类型，右值引用
+
+template<typename T>
+void f(const T&& param);    	// param是const类型，右值引用
+
+template<class T, class Allocator = alloctor<T>>
+class vector {
+public:
+    void push_back(T&& x);	// push_back是实例化vector的一部分，没有推断，右值引用
+};
+
+template<class T, class Allocator = allocator<T>>
+class vector {
+public:
+    template <class... Args>
+    void emplace_back(Args&&... args);	// 通用引用
+};
+~~~
+
+#### 2. auto&&
+
+`auto&&`的变量都是通用引用，在C++14中出现较多。
+
+例子：`func`是个通用引用，可以绑定任何的可执行对象，而`params`是0个或多个通用引用，可以绑定任何数目个任意类型对象。最终结果是，auto通用引用使得可以记录**几乎所有**（见[条款30](#30)）的函数执行的所需时间。
+~~~cpp
+auto timeFuncInvocation = [](auto&& func, auto&&... params){
+	start timer;
+	std::forward<decltype(func)>(func)(
+		std::forward<decltype(params)>(params);
+	);
+	// stop timer and record elapsed time;
+};
+~~~
+
+<a name='25'></a>
+### 25. 对右值引用使用std::move，对通用引用使用std::forward
+当把右值引用转发给其他函数时，右值引用应该**无条件**转换为右值（借助`std::move`），因为右值引用总是绑定右值。而当把通用引用转发给其他函数时，通用引用应该**有条**件地转换为右值（借助`std::forward`)，因为通用引用只是有时候会绑定右值。
+
+1. 为确保这个对象不会被移动，在**最后一次使用**那个引用时，才用`std::move`或`std::forward`。
+~~~cpp
+template<typename T>
+void setSignText(T&& text){ 
+	sign.setText(text);	// 使用text，但不修改它
+	auto now = std::chrono::system_clock::now();	// 获取当前时间
+	signHistory.add(now, std::forward<T>(text));	// 有条件地把text转换为右值
+}
+~~~
+2. 如果你有个**函数是通过值返回**，然后你函数内返回的是被右值引用或通用引用绑定的对象，那么你应该对你返回的对象使用`std::move`或`std::forward`。
+~~~cpp
+Matrix operator+(Matrix&& lhs, const Matrix& rhs) {
+	lhs += rhs;
+	return std::move(lhs);	// 移动到返回值
+	return lhs;		// 拷贝到返回值
+}
+~~~
+3. **RVO**（return value optimization）：在通过值返回的函数中，如果（1）一个局部变量的类型和返回值的类型相同，而且（2）这个局部变量是被返回的对象，那么编译器可能会省略局部变量的拷贝（或移动），此时不要对它们使用std::move或std::forward。
+
+<a name='26'></a>
+### 26. 避免对通用引用进行重载
+接受通用引用作为参数的函数是C++最贪婪的函数，它们可以为几乎所有类型的参数实例化，从而创建的精确匹配。这就是为什么结合重载和通用引用几乎总是个糟糕的想法：通用引用重载吸收的参数类型远多于开发者的期望。
+~~~cpp
+template<typename T>
+void logAndAdd(T&& name) {
+	auto now = std::chrono::system_clock::now();
+	log(now, "logAndAdd");
+	names.emplace(std::forward<T>(name));
+}
+
+std::multiset<std::string> names;
+std::string petName("Darla");
+logAndAdd(petName);      		// 拷贝左值
+logAndAdd(std::string("Persephone"));	// 移动右值
+logAndAdd("Patty Dog");			// 在multisest内创建
+
+std::string nameFromIdx(int idx);
+void logAndAdd(int idx){
+	auto now = std::chrono::system_clock::now();
+	log(now, "logAndAdd");
+	names.emplace(nameFromIdx(idx));
+}
+short nameIdx;
+logAndAdd(nameIdx);   		// 匹配logAndAdd(T&& name)，错误
+~~~
+
+**完美转发构造函数**是特别有问题的，因为在接受非const左值作为参数时，它们通常比拷贝构造匹配度高，然后它们还能劫持派生类调用的基类的拷贝和移动构造。
+
+如何解决这个问题，见[条款27](#27)
+
+<a name='27'></a>
+### 27. 熟悉替代重载通用引用的方法
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <a name='31'></a>
 ### 31. 避免使用默认捕获模式
 #### #默认引用捕获缺点：
@@ -664,6 +858,19 @@ auto func = std::bind(
 <a name='33'></a>
 ### 33. 对需要std::forward的auto&&参数使用decltype
 
+C++14最令人兴奋的特性之一是泛型lambda——lambda可以在参数说明中使用auto。
+~~~cpp
+auto f = [](auto x) { return func(normalize(x)); };
 
-
+// lambda类似于下面一个类
+class SomeCompilerGeneratedClassName {
+public:
+	template<typename T>
+	auto operator()(T x) const { return func(normalize(x)); }
+};
+~~~
+如果normalized区别对待左值和右值，这个lambda这样写是不合适的。第一，x要改成通用引用[条款24](#24)，第二，借助std::forward[条款25](#25)把x转发到normalized。
+~~~cpp
+auto f = [](auto&& x) { return func(normalized(std::forward<???>(x))); };
+~~~
 
