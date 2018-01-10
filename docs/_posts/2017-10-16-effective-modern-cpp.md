@@ -24,6 +24,15 @@ description: effective modern c++
   - [10. 比起unscoped enums更偏爱scoped nums](#10)
   - [11. 用deleted functions代替private undefined的做法](#11)
   - [12. 把重写函数(overriding function)声明为override](#12)
+- 第5章 右值、移动、完美转发
+  - [23. 理解std::move和std::forward](#23)
+  - [24. 区分通用引用和右值引用](#24)
+  - [25. 对右值引用使用std::move，对通用引用使用std::forward](#25)
+  - [26. 避免对通用引用进行重载](#26)
+  - [27. 熟悉替代重载通用引用的方法](#27)
+  - [28. 理解引用折叠](#28)
+  - [29. 假设移动操作是不存在的、不廉价的、不能用的](#29)
+  - [30. 熟悉完美转发失败的情况](#30)
 - 第6章 lambda函数
   - [31. 避免使用默认捕获模式](#31)
   - [32. 使用初始化捕获来把对象移动到闭包](#32)
@@ -556,11 +565,21 @@ public:
 };
 ~~~
 
+<a name='13'></a>
+### 13. 比起iterator更偏爱const_iterator
+C++11只加了非成员函数版本的begin和end，而没有加入cbegin，cend，rbegin，rend，crbegin和crend。C++14修正了这问题。
+~~~cpp
+template <typename C, typename V>
+void findAndInsert(C& container, const V& targetVal, const V& insertVal) {
+    using std::cbegin;
+    using std::cend;
+    auto it = std::find(cbegin(container), cend(container), targetVal);
+    container.insert(it, insertVal);
+};
+~~~
 
-
-
-
-
+<a name='14'></a>
+### 14. 把不发出异常的函数声明为noexcept
 
 
 
@@ -1065,7 +1084,6 @@ auto func = std::bind(
 
 <a name='33'></a>
 ### 33. 对需要std::forward的auto&&参数使用decltype
-
 C++14最令人兴奋的特性之一是泛型lambda——lambda可以在参数说明中使用auto。
 ~~~cpp
 auto f = [](auto x) { return func(normalize(x)); };
@@ -1079,6 +1097,82 @@ public:
 ~~~
 如果normalized区别对待左值和右值，这个lambda这样写是不合适的。第一，x要改成通用引用[条款24](#24)，第二，借助std::forward[条款25](#25)把x转发到normalized。
 ~~~cpp
-auto f = [](auto&& x) { return func(normalized(std::forward<???>(x))); };
+auto f = [](auto&& x) { return func(normalized(std::forward<decltype(params)>(params)...)); };
 ~~~
+
+params是左值，`decltype(params)`得到左值，`std::forward`得到左值；params是右值，`decltype(params)`得到右值，尽管是`std::forward`的非常规使用，但`std::forward`依然得到右值；
+
+<a name='34'></a>
+### 34. 比起std::bind更偏向使用lambda
+
+#### 1. `lambda`具有更好的可读性
+在bind1中，实现的是错误的代码，参数先求值后绑定，表明在绑定函数后1小时触发，而非调用函数后1小时触发。bind2正确。
+~~~cpp
+using Time = std::chrono::steady_clock::time_point;
+enum class Sound {Beep, Siren, Whistle };
+using Duration = std::chrono::steady_cloak::duration;
+
+void setAlarm(Time t, Sound s, Duration d);
+
+// lambda
+auto setSoundL = [](Sound s) {
+	using namespace std::chrono;
+	using namespace std::literals;     // C++14支持时间后缀
+	setAlram(steady_clock::now() + 1h, s, 30s); 
+};
+// bind1
+using namespace std::placeholders;
+auto setSoundB = std::bind(setAlarm, steady_clock::now() + 1h, _1, 30s);
+// bind2
+auto setSoundB = std::bind(setAlarm, 
+		// 在C++14，标准操作符模板的模板类型参数可以被省略
+		std::bind(std::plus<>(), steady_clock::now(), 1h),, _1, 30s);
+~~~
+
+#### 2. 函数被重载时,bind会出错
+当函数被重载时，`lambda`会自动选择该被调用的函数，而bind会编译错误，除非用**函数指针**指定调用的函数。使用函数指针会降低内联的可能性，导致效率降低。
+~~~cpp
+using SetAlarm3ParamType = void(*)(Time t, Sound s, Duration d);
+// 指针的强制转换
+auto setSoundB = std::bind(static_cast<SetAlarm3ParamType>(setAlarm), 
+		std::bind(std::plus<>(), steady_clock::now(), 1h),, _1, 30s);
+~~~
+
+另一个例子
+~~~cpp
+auto betweenL = [lowVal, highVal] (const auto& val)
+	{ return lowVal <= val && val <= highVal; };
+
+using namespace std::placeholders;
+auto betweenB = std::bind(std::logical_and<>(),
+			  std::bind(std::less_equal<>(), lowVal, _1),
+			  std::bind(std::less_equal<>(), _1, highVal));
+~~~
+
+#### 3. bind只能通过引用传递
+`lambda`可以指定传值或传引用，`bind`的函数调用操作符使用了完美转发，只能引用传递。
+
+在C++14，没有理由使用`std::bind`。而在C++11，`std::bind`可以使用在受限的两个场合：
+1. 移动捕获。C++11的lambda没有提供移动捕获，但可以结合std::bind和lambda来效仿移动捕获，见[条款32](#32)
+2. 多态函数对象。绑定对象的函数调用操作符会使用完美转发，它可以接受任何类型的实参。C++
+14`lambda`已经支持auto形参
+
+~~~cpp
+class PolyWidget {
+public:
+	template<typename T>
+	void operator() (const T& param);
+};
+
+PolyWidget pw;
+auto boundPW = std::bind(pw, _1);
+boundPW(1930);		// 传递各种类型
+
+// C++14
+auto boundPW = [pw](const auto& param){ pw(param); }
+~~~
+
+
+
+
 
