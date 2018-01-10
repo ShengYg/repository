@@ -729,29 +729,237 @@ logAndAdd(nameIdx);   		// 匹配logAndAdd(T&& name)，错误
 如何解决这个问题，见[条款27](#27)
 
 <a name='27'></a>
-### 27. 熟悉替代重载通用引用的方法
+### 27. 熟悉替代重载通用引用的方法 
+#### 1. **Tag dispatch**
+在通用引用中加入额外的tag，如`std::false_type`和`std::true_type`。tag**没有命名**，因为它们在运行期间没有任何作用，只是希望编译器可以辨别出标签参数是不同寻常的，然后优化它们在运行期间的开销。它是模板元编程的基本构件。
+~~~cpp
+std::multiset<std::string> names;
+// 原版本
+template<typename T>
+void logAndAdd(T&& name) {
+	auto now = std::chrono::system_clock::now();
+	log(now, "logAndAdd");
+	names.emplace(std::forward<T>(name));
+}
+// 新版本
+template<typename T>
+void logAndAdd(T&& name) {
+	logAndAddImpl(
+		std::forward<T>(name),
+		// 传入左值引用时有问题，需要移除引用
+		std::is_integral<std::remove_reference<T>()
+	);
+}
+template<typename T>
+void logAndAddImpl(T&& name, std::false_type){
+	auto now = std::chrono::system_clock::now();
+	log(now, "logAndAdd");
+	names.emplace(std::forward<T>(name));
+}
+void logAndAddImpl(int idx, std::true_type){
+	logAndAdd(nameFromIdx(idx);
+}
+~~~
 
+Tag dispatch不能解决完美转发构造函数的问题。当你想要调用编译器生成的拷贝构造函数时，它依然会跳过，而始终调用通用引用，重载依然不起作用。
 
+#### 2. std::enable_if
+默认地，所有模板都是enable（使能）的，不过模板使用`std::enable_if`后，只会在满足指定条件时才会被使能。在例子中，我们想要在传递给构造函数的参数类型不是Person时才使能完美转发构造函数，如果传递的参数类型是Person，我们打算disable完美转发构造函数，由类的拷贝或移动构造来处理这次调用。
 
+~~~cpp
+class Person {
+public:
+	// 原来代码
+	template<typename T>
+	explicit Person(T&& n) : name(std::forward<T>(n)) {}
+	explicit Person(int idx);
+	// 修改后，只有声明，定义相同
+	template<
+		typename T, 
+		typename = typename std::enable_if<
+			!std::is_same<Person, typename std::decay<T>::type>::value
+		>::type
+	>
+	explicit Person(T&& n);
 
+	...
+};
+~~~
 
+`std::enable_if`中的表达式判断了T和Person的类型是否一致。`std::decay<T>`表示去除T的各种引用、const修饰符、volatile修饰符。
 
+对于Person的派生类，它在调用基类的完美转发构造时进行判断，由于SpecialPerson与Person不同，依然会使用完美转发构造函数，问题依然存在。调用`std::is_base_of`代替`std::is_same`
 
+~~~cpp
+class Person {
+public:
+	template<
+		typename T, 
+		typename = typename std::enable_if<
+			!std::is_base_of<Person, typename std::decay<T>::type>::value
+		>::type
+	>
+	explicit Person(T&& n);
+};
+~~~
 
+最终版本：
+~~~cpp
+class Person {
+public:
+	template<
+		typename T, 
+		typename = typename std::enable_if<
+			!std::is_base_of<Person, typename std::decay<T>::type>::value
+			&&
+			!std::is_integral<std::remove_reference_t<T>>::value
+		>::type
+	>
+	explicit Person(T&& n)
+	: name(std::forward<T>(n)) {...}
 
+	explicit Person(int idx)
+	: name(nameFromIdx(idx)) {...}
+};
+~~~
 
+#### 3. 权衡
+完美转发更具效率，因为它为了保持声明参数时的类型，它避免创建临时对象。但是完美转发有缺点:
+1. 某些类型不能被完美转发，尽管它们可以被传递到函数，见[条款30](#30)
+2. 当用户传递无效参数时，错误信息难以理解：任何类型被通用引用绑定时不报错，只有进一步进入构造函数时才报错。可以加入`static_assert`确保某种类型。
 
+~~~cpp
+static_assert(
+	// 可以从T构造出string变量
+	std::is_constructible<std::string, T>::value,
+	"Parameter n can't be used to construct a std::string"
+);
+~~~
 
+<a name='28'></a>
+### 28. 理解引用折叠
+编译器禁止声明对引用的引用，但在特殊的上下文中可以产生，模板实例化就是其中之一。当编译器生成对引用的引用时，引用折叠指令就会随后执行。
 
+> 引用折叠：如果两个引用中有一个是左值引用，那么折叠的结果是一个左值引用。否则（即两个都是右值引用），折叠的结果是一个右值引用。
 
+通用引用不是一种新的引用类型，实际上它是右值引用，根据左值和右值来进行类型推断，发生引用折叠。
 
+~~~cpp
+template<typename T>
+void f(T&& fParam){
+	someFunc(std::forward<T>(fParam));
+}
 
+// forward工作方式
+template<typename T>
+T&& forward(typename remove_reference<T>::type& param){
+    return static_cast<T&&>(param);
+}
+~~~
 
+出现引用折叠的情况：
+1. 模板实例化
+2. auto
+3. 使用typedef和类型别名声明
+4. 使用decltype
 
+<a name='29'></a>
+### 29. 假设移动操作是不存在的、不廉价的、不能用的
+移动操作在许多情况下并不比拷贝好，原因有三：
+1. 没有移动操作
+2. 移动的速度不快。许多容器类型的对象，在概念上，只持有一个指针（作为成员变量），指向存储容器内容的堆内存，这个指针的存在使得用常量时间移动一个容器的内容成为可能。`std::array`不同，因为它的数据直接存储在对象中。`std::string`提供常量时间的移动和线性时间的拷贝，实际上移动不比拷贝快。许多string的实现都使用了small string optimization(SSO)，通过SSO，small string（例如，那些容量不超过15字符的string）会被存储到`std::string`对象内的一个缓冲区中；不需要使用堆分配的策略。
+3. 不能使用移动操作。标准库一些容器操作提供**异常安全保证**，只有当移动操作不抛异常时，才会把内部的拷贝当作替换成移动操作。结果就是：即使一个类提供移动操作，编译器可能仍然会使用拷贝操作，因为它对应的移动操作没有声明为`noexcept`。
 
+<a name='30'></a>
+### 30. 熟悉完美转发失败的情况
 
+完美转发：不单单转发对象，我们还转发它们重要的特性：它们的类型，它们是右值还是左值，它们是否是const或者volation修饰的。
 
+完美转发可变参数模板
+~~~cpp
+template<typename... Ts>
+void fwd(Ts&& ...params){
+	f(std::forward<Ts>(param)...);
+}
+// 下面两行意思一致，代表完美转发成功
+f( expression );
+fwd(expression);
+~~~
+#### 1. 大括号初始值
 
+~~~cpp
+void f(const std::vector<int>& v);
+f({1, 2, 3});
+fwd({1, 2, 3});		// error
+~~~
+
+f中支持{1,2,3}到`std::vector`的隐式转换，但fwd没有`std::initialist_list`类型的模板参数。由于`auto`变量在用大括号初始值初始化时会进行类型推断，因此可以用auto声明一个局部变量。
+
+~~~cpp
+auto il = {1, 2, 3};
+fwd(il);
+~~~
+#### 2. 0和NULL作为空指针
+用`nullptr`代替
+#### 3. 只声明的static const成员变量
+~~~cpp
+class Widget {
+public:
+	static const std::size_t MinVals = 28;         // MinVals的声明
+};
+const std::size_t Widget::MinVals;			// 定义MinVals
+~~~
+`static const`变量只有声明，没有定义，可以编译，但不能链接。直接使用变量没问题，但通过引用使用，就会链接失败。
+
+#### 4. 重载函数名字和模板名字
+f有具体的声明，因此知道调用哪一个函数，但fwd是模板，编译器无法决定。
+~~~cpp
+void f(int (*pf)(int));
+int processVal(int value);
+int processVal(int value, int priority);
+
+f(processVal);		// right
+fwd(processVal);	// wrong
+
+template<typename T>
+T workOnVal(T param)	// 一个处理值的模板
+{ ... }
+fwd(workOnVal);		// wrong
+~~~
+
+像fwd这种进行完美转发的函数，想要接受一个**重载函数名字**或者**模板名字**的方法是：手动指定你想要转发的那个重载或者实例化。
+
+~~~cpp
+using ProcessFuncType = int (*)(int);
+ProcessFuncType processValPtr = processVal;
+fwd(processValue);
+
+fwd(static_cast<ProcessFuncType>(workOnVal));
+~~~
+
+#### 5. 位域（Bitfields）
+~~~cpp
+struct IPv4Header {
+	std::uint32_t   version : 4,
+			IHL : 4,
+			DSCP : 6,
+			ECN : 2,
+			totalLength : 16;
+};
+
+void f(std::size_t sz);
+IPv4Header h;
+f(h.totalLength);	// right
+fwd(t.totalLength);	// wrong
+~~~
+
+C++标准规定不是常量引用不能绑定位域（A non-const reference shall not be bound to a bit-field）。原因很简答：位域可能是包括机器字的任意部分，但是没有方法直接获取它们的地址。
+
+~~~cpp
+// 转发拷贝
+auto length = static_cast<std::uint16_t>(h.totalLength);
+fwd(length); 
+~~~
 
 <a name='31'></a>
 ### 31. 避免使用默认捕获模式
