@@ -24,6 +24,16 @@ description: effective modern c++
   - [10. 比起unscoped enums更偏爱scoped nums](#10)
   - [11. 用deleted functions代替private undefined的做法](#11)
   - [12. 把重写函数(overriding function)声明为override](#12)
+  - [13. 比起iterator更偏爱const_iterator](#13)
+  - [14. 把不发出异常的函数声明为noexcept](#14)
+  - [15. 尽可能使用constexpr](#15)
+  - [17. 理解特殊成员函数的生成](#17)
+- 第4章 智能指针
+  - [18. 用std::unique_ptr管理独占所有权的资源](#18)
+  - [19. 用std::shared_ptr管理共享所有权的资源](#19)
+  - [20. 把std::weak_ptr当作类似std::shared_ptr的、可空悬的指针使用](#20)
+  - [21. 比起直接使用new，更偏爱使用std::make_unique和std::make_shared](#21)
+  - [22. 当使用Pimpl Idiom时，在实现文件中定义特殊成员函数](#22)
 - 第5章 右值、移动、完美转发
   - [23. 理解std::move和std::forward](#23)
   - [24. 区分通用引用和右值引用](#24)
@@ -38,6 +48,8 @@ description: effective modern c++
   - [32. 使用初始化捕获来把对象移动到闭包](#32)
   - [33. 对需要std::forward的auto&&参数使用decltype](#33)
   - [34. 比起std::bind更偏向使用lambda](#34)
+- 第7章 并行API
+- 第8章 技巧
 
 ---
 
@@ -580,9 +592,361 @@ void findAndInsert(C& container, const V& targetVal, const V& insertVal) {
 
 <a name='14'></a>
 ### 14. 把不发出异常的函数声明为noexcept
+`noexcept`说明函数保证不会发出异常，是函数接口的一部分，它允许编译器生成更好的目标代码。
 
+三个例子：
+1. C++11中向`vector`添加元素，没有直接用移动代替拷贝（若在移动中抛出异常，原`vector`状态会改变），而是可以用移动的话就移动，不行就一定要用拷贝（move if you can, but copy if you must）。具体实现就是检查移动操作是否用noexcept声明
+2. 标准库中的`swap`是否是noexcept取决于用户定义swap是否为noexcept
+~~~cpp
+template <class T, size_t N>
+void swap(T (&a)[N], T (&b)[N]) noexcept(noexcept(swap(*a,*b)));
+//
+template <class T1, class T2>
+struct pair {
+	void swap(pair& p) noexcept(noexcept(swap(first, p.first)) &&
+			noexcept(swap(second, p.second)));
+};
+~~~
+3. 所有的**释放内存函数和析构函数**，不管是用户自定义还是编译器生成的，都是隐式noexcept的。
 
+事实上大部分函数是**异常中立**的。这些函数自身没有抛任何异常，不过它们调用的函数可能发出异常，因此大部分函数普遍不适用noexcept。但是一些函数，尤其是移动赋值操作和swap，声明为noexcept有重大回报，这值得我们尽可能地把它们声明为noexcept。
 
+<a name='15'></a>
+### 15. 尽可能使用constexpr
+在概念上，constexpr表明一个值不仅是常量，还是在编译期间可知。
+
+#### 1. constexpr对象：
+
+它们的值在编译期间就知道了，适用于数组大小的表示，整型模板参数（包括std::array对象的长度），枚举的值，对齐说明，等等。
+
+> `const`并不提供与`constexpr`相同的保证，因为`const`对象在编译时不需要用已知的值**初始化**。
+
+~~~cpp
+constexpr auto arraySize2 =  10;
+std::array<int, arraySize2> data2;
+
+int sz;
+const auto arraySize = sz;
+std::array<int, arraySize> data;	// 错误，arraySize的值在编译期间不可知
+~~~
+
+#### 2. constexpr函数:
+规则：
+- constexpr函数可以用在**需求编译期间常量**的上下文。如果你传递参数的值在编译期间已知，那么函数的结果会在编译期间计算。如果任何一个参数的值在编译期间未知，代码将不能通过编译。
+- 如果用一个或者多个在编译期间未知的值作为参数调用constexpr函数，函数的行为和普通的函数一样，在运行期间计算结果。这意味着你不需要用两个函数来表示这个操作——一个在编译期间和一个在运行期间。
+
+在C++11，constexpr只能有一个return语句。C++14不限制。
+~~~cpp
+constexpr int pow(int base, int exp) noexcept{
+	// C++11
+	return (exp == 0 ? 1 : base * pow(base, exp - 1));
+	// C++14
+	auto result = 1;
+	for (int i=0; i<exp; ++i) result *= base;
+	return results;
+}
+
+constexpr auto numCouds = 5;
+std::array<int, pow(3, numCouds)> results;
+~~~
+
+constexpr函数要求持有和返回的类型为**字面值类型**。在C++中，**除了void之外**的内置类型都是字面值类型，用户定义的类型也有可能是字面值类型。
+~~~cpp
+class Point {
+public:
+	// constexpr构造函数，表明constexpr对象
+	constexpr Point(double xVal = 0, double yVal = 0) noexcept
+	: x(xVal), y(yVal) {}
+
+	constexpr double xValue() const noexcept { return xVal; }
+	constexpr double yValue() const noexcept { return yVal; }
+
+	void setX(double newX) noexcept { x = newX; }
+	void setY(double newY) noexcept { y = newY; }
+
+private:
+	double x, y;
+};
+
+constexpr Point p2(28.8, 5.3);
+constexpr Point midpoint(const Point &p1, const Point &p2) noexcept {
+    return { (p1.xValue + p2.xValue)) / 2, (p1.yValue + p2.yValue)) / 2 };
+}
+constexpr auto mid = midpoint(p1, p2);
+~~~
+
+在C++11，有两个限制因素妨碍把Point的成员变量setX和setY声明为constexpr。第一，它们改变了它们操作的值，constexpr成员函数是隐式声明为const的。第二，它们的返回类型是void。但是这两个限制在C++14被解除了，所以在C++14，**设置函数也可以constexpr**
+
+<a name='17'></a>
+### 17. 理解特殊成员函数的生成
+
+类中的两个**拷贝操作**是独立的：声明了其中一个不会阻止编译器生成另一个。类中的两个**移动操作**不是独立的，如果你声明了其中一个，那会阻止编译器生成另一个。这里的根据是：如果你声明了一个移动构造函数，暗示着你的移动构造函数实现与编译器产生的默认逐一移动实现不同，那么如果逐一移动的构造函数是有问题的，那么逐一移动的赋值运算可能也有问题。
+
+显式声明拷贝操作的类不能生成移动操作。正当的理由是：声明了拷贝操作暗示着正常的拷贝对象的方法是不适合这个类的，然后编译器认为如果成员逐一拷贝不适合操作操作，成员逐一移动可能也不会适合移动操作。
+
+三大法则规定：如果你声明了拷贝构造、拷贝复制、析构函数中的其中一个，你应该把这三个都声明。
+
+~~~cpp
+class Widget {
+public:
+	~Widget();
+	Widget(const Widget&) = default;		// 使用默认拷贝构造
+	Widget& operator=(const Widget&) = default;	// 使用默认拷贝复制操作
+};
+~~~
+
+因此C++11管理特殊成员函数是这样的：
+- 析构函数：本质上C++98的规则相同，唯一的区别就是析构函数默认声明为noexcept（看条款14）。C++98的规则是基类的析构函数的虚函数的话，生成的析构函数也是虚函数。
+- 拷贝构造函数：如果类中声明了移动操作，拷贝构造会被删除；当类中存在用户声明的拷贝赋值操作符或析构函数时，不建议用生成的拷贝构造函数。
+- 拷贝赋值运算符：如果类中声明了移动操作，拷贝赋值运算符会被删除；当类中存在用户声明的拷贝构造函数或析构函数时，不建议用生成的拷贝赋值运算符。
+- 移动构造函数和移动赋值运算符：只有在类中没有用户声明的拷贝操作、移动操作、析构函数时才会自动生成。
+- 没有规则说明成员函数模板会阻止编译器生成特殊成员函数
+
+<a name='18'></a>
+### 18. 用std::unique_ptr管理独占所有权的资源
+`std::unique_ptr`表示独占所有权语义。一个非空的`std::unique_ptr`会一直拥有它指向的对象，只可移动，不能拷贝。
+
+一个常见的例子是工厂函数，另一个是Pimpl Idiom技术，见[条款22](#22)
+~~~cpp
+class Investment { ... };
+class Stock : public Investment { ... };
+class Bond : public Investment { ... };
+class RealEstate : public Investment { ... };
+
+template <typename... Ts>
+std::unique_ptr<Investment>
+makeInvestment(Ts&&... params);
+
+{	// 在局部作用域中生成指针
+	auto pInvestment = makeInvestment(arguments);
+} 
+~~~
+
+默认情况下，`std::unique_ptr`是借助delete来销毁管理的资源，但是，在构造期间，你可以指定使用自定义的删除器。如果删除器是函数指针，它通常会让std::unique_ptr的大小增加一到两个字节。如果删除器是函数对象，std::unique_ptr的大小改变取决于函数对象存储了多少状态。无状态的函数对象（不捕获变量lambda表达式）不会受到一丝代价。
+
+~~~cpp
+auto delInvmt = [](Investment *pInvestment) {
+			makeLogEntry(pInvestment);	// 额外的删除工作
+			delete pInvestment;
+		};
+
+template <typename... Ts>
+std::unique_ptr<Investment, decltype(delInvmt)>
+makeInvestment(Ts&&... params) {	// 定义的删除器作为第二个模板参数
+	std::unique_ptr<Investment, decltype(delInvmt)> pInv(nullptr, delInvmt);
+	if (...) {
+		pInv.reset(new Stock(std::forward<Ts>(params)...));
+	}
+	else if (...) {
+		pInv.reset(new Bond(std::forward<Ts>(params)...));
+	}
+	else if (...) {
+		pInv.reset(new RealEstate(std::forward<Ts>(params)...));
+	}
+	return pInv;
+}
+~~~
+
+`std::unique_ptr`可以直接作为**右值**转化为`std::shared_ptr`。
+~~~cpp
+// unique_ptr作为右值直接转换
+std::shared_ptr<Investment> sp = makeInvestment(argument); 
+~~~
+
+<a name='19'></a>
+### 19. 用std::shared_ptr管理共享所有权的资源
+引用计数的工作方式：
+- `std::shared_ptr`的大小是原生指针的两倍，因为它包含一个指向资源的原生指针和引用计数。
+- 引用计数所用的内存一定是动态分配的。
+- 增加和减少引用计数一定是原子操作，因为在不同的线程中会同时存在读和写。
+
+引用计数是一个更大的数据结构的一部分，这个数据结构是control block（控制块）。每个shared_ptr管理的对象都有一个控制块，这个控制卡除了包含引用计数外，还有一份自定义删除器的拷贝，自定义分配器的拷贝。
+
+<center>
+<img src="{{ site.baseurl }}/assets/pic/shared_ptr.png" height="200px" >
+</center>
+
+控制块创建要服从以下规则：
+- std::make_shared总是会创建控制块。
+- 当std::shared_ptr由独占所有权指针(即std::unique_ptr或std::auto_ptr)构造时，控制块会被创建。
+- 当以原生指针为参数调用std::shared_ptr的构造函数时，会创建控制块。如果你想从已有控制块的对象创建一个std::shared_ptr，你可能要传递一个std::shared_ptr或std::weak_ptr作为构造函数的参数。因此，通过指向动态分配的对象的原生指针创建std::shared_ptr是糟糕的。
+
+`std::shared_ptr`也支持自定义删除器，但是它的类型不是智能指针的类型，因此也存在一个容器中存有不同删除器类型的shared_ptr。
+~~~cpp
+auto loggingDel = [](Widget *pw) {
+			makeLogEntry(pw);
+			delete pw;
+		  };
+std::unique_ptr<Widget, decltype(loggingDel)> upw(new Widget, loggingDel);
+std::shared_ptr<Widget> spw(new Wiget, loggingDel); 
+~~~
+
+两点注意：
+- 避免用原生指针构造std::shared_ptr，通常的选择是使用std::make_shared。
+- 如果你一定要用原生指针构造std::shared_ptr，那么直接把new出来的结果传递过去，而不是传递原生指针变量
+~~~cpp
+std::shared_ptr<Widget> spw1(new Widget， loggingDel);
+std::shared_ptr<Widget> spw2(spw1);	// 调用拷贝构造
+~~~
+
+如果类成员要处理this指针，可以继承`enable_shared_from_this`模板。为了保证成员函数在使用前已经用shared_ptr指向当前对象，会将构造函数声明为private，使用工厂创建对象。
+~~~cpp
+// 模板参数为它的派生类名字
+class Widget : public std::enable_shared_from_this<Widget> {
+public:
+	template<typename... Ts>
+	static std::shared_ptr<Widget> create(Ts&&... params);
+	void process();
+private:
+	...	// 构造函数
+};
+void Widget::process() {
+	// 使用this创建shared_ptr对象，并且不带重复的控制块
+	processedWidgets.emplace_back(shared_from_this());
+}
+~~~
+
+<a name='20'></a>
+### 20. 把std::weak_ptr当作类似std::shared_ptr的、可空悬的指针使用
+`std::weak_ptr`要和`std::shared_ptr`搭配使用，不能被解引用，也不能检测是否为空，不会影响对象的引用计数，能够追踪它什么时候对象被销毁。
+~~~cpp
+auto spw = std::make_shared<Widget>();
+std::weak_ptr<Widget> wpw(spw);
+~~~
+通常需要一个原子操作检查std::shared_ptr是否过期，没有的话，给你它指向的对象。有两种形式。一种形式是std::weak_ptr::lock，它返回一个std::shared_ptr。如果std::weak_ptr过期了，std::shared_ptr就为空。
+~~~cpp           `
+auto spw1 = wpw.lock();
+~~~
+另一种形式是使用接受std::weak_ptr为参数的std::shared_ptr构造函数，这种情况呢，如果std::weak_ptr过期了，会抛出异常： 
+~~~cpp
+std::shared_ptr<Widget> spw2(wpw);
+~~~
+
+常见应用：
+1. 应用1：带缓存的工厂函数
+~~~cpp
+std::shared_ptr<const Widget> fastLoadWidget(WidgetID id) {
+    static std::unordered_map<WidgetID, std::weak_ptr<const Widget>> cache; 
+    auto objPtr = cache[id].lock();
+    if (!object) {
+        objPtr = loadWidget(id);
+        cache[id] = objPtr;
+    }
+    return object;
+}
+~~~
+2. 应用2：观察者模式
+每个主题持有一个元素为std::weak_ptr的容器，std::weak_ptr指向主题的每个观察者，因此主题在使用观察者之前可以查看指针是否空悬
+3. 应用3：循环引用。B对A使用weak_ptr，避免循环引用。如果是树形结构，子结点指向父结点的指针可以用原生指针安全实现。
+<center>
+<img src="{{ site.baseurl }}/assets/pic/weak_ptr.png" height="70px" >
+</center>
+
+<a name='21'></a>
+### 21. 比起直接使用new，更偏爱使用std::make_unique和std::make_shared
+`make_shared`是C++11的一部分，`make_unique`在C++14才纳入标准库。可以写一个简单的`make_unique`的C++11版本
+~~~cpp
+template<typename T, typename... Ts>
+std::unique_ptr<T> make_unique(Ts&&... params){
+    return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
+}
+~~~
+
+make函数的优点：
+1. 避免代码重复。make函数内部是new函数，多次调用new导致代码重复。
+2. 异常安全。make能立即获得对象的指针，并在发生异常时直接调用析构函数。
+~~~cpp
+processWidget(std::make_shared<Widget>(), computePriority())
+processWidget(std::shared_ptr<Widget>(new Widget), computePriority());
+~~~
+3. 提高效率。make调用一次内存分配函数来同时持有对象和控制块。
+
+make函数的缺点：
+1. 不能指定自定义删除器
+~~~cpp
+auto widgetDeleter = [](Widget* pw) {...}
+std::unique_ptr<Widget, decltype(widgetDeleter)> upw(new Widget, widgetDeleter);
+std::shared_ptr<Widget> spw(new Widget, widgetDeleter);
+~~~
+2. 不适合大括号创建对象。[条款30]有另一种方法。
+~~~cpp
+auto upv = std::make_unique<std::vector<int>>(10, 20);
+// 见条款30
+auto initList = {10, 20};
+auto spv = std::make_shared<std::vector<int>>(initList);
+~~~
+3. make_shared特有的：定义自己版本的operator new和operator delete的对象
+4. make_shared特有的：只有std::shared_ptr和std::weak_ptr对象销毁，才能被回收。如果对象很大或持续时间长，不合适。
+
+一种异常安全的不采用make的调用：即使new抛出异常，spw也能调用自定义的删除函数curDel
+~~~cpp
+std::shared_ptr<Widget> spw(new Widget, cusDel);
+processWidget(std::move(spw), computeWidget); 	// computeWidget的异常无法干扰new
+~~~
+
+<a name='22'></a>
+### 22. 当使用Pimpl Idiom时，在实现文件中定义特殊成员函数
+Pimpl(“pointer to implementation”) Idiom：通过把类中的成员变量替换成指向一个实现类（的指针，成员变量被放进单独的实现类中，然后通过该指针间接获取原来的成员变量。
+
+原来的类依赖于许多类型，在头文件中需要添加多个include，编译时间长。且头文件改变，就需要重新编译。通过Pimpl将include转移至cpp文件中。
+
+~~~cpp
+class Widget {			// 在头文件“widget.h”中
+public:
+	Widget();
+private:
+	std::string name;
+	std::vector<double> data;
+	Gadget g1, g2, g3; 	// 需要头文件gadget.h
+};
+
+// C++11改进版本
+class Widget {			// 依然在头文件“widget.h”中
+public:
+    Widget();
+private:
+    struct Impl;		// 声明实现类
+    Impl *pImpl;		// 声明指针指向实现类
+};
+
+#include "widget.h"		// 在实现文件“widget.cpp”
+#include "gadget.h"
+#include <string>
+#include <vector>
+
+struct Widget::Impl {		// 用原来对象的成员变量来定义实现类
+    std::string name;
+    std::vector<double> data;
+    Gadget g1, g2, g3;
+};
+Widget::Widget() : pImpl(new Impl) {}
+
+// C++14版本
+class Widget {			// 在“widget.h”
+public:
+	Widget();
+	~Widget();
+private:
+	struct Impl;
+	std::unique_ptr<Impl> pImpl;
+};
+
+#include "widget.h" 		// 在“widget.cpp”
+#include "gadget.h"
+#include <string>
+#include <vector>
+
+struct Widget::Impl {
+    std::string name;
+    std::vector<double> data;
+    Gadget g1, g2, g3;
+};
+
+Widget::Widget() : pImpl(std::make_unique<Impl>()) {}
+Widget::~Widget() {}
+~~~
+
+注意：对于std::unique_ptr，删除器的类型是智能指针类型的一部分，这让编译器生成更小的运行时数据结构和更快的运行时代码成为可能。这高效导致的后果是当使用编译器生成的特殊成员函数时，指向的类型必须是完整类型。因此需要在头文件中声明特殊成员函数，但在实现文件中实现它们。std::shared_ptr相反。
 
 
 
@@ -596,7 +960,7 @@ void findAndInsert(C& container, const V& targetVal, const V& insertVal) {
 ### 23. 理解std::move和std::forward
 `std::move`不会移动任何东西，`std::forward`不会转发任何东西，在运行期间，它们什么事情都不会做。`std::move`和`std::forward`仅仅是表现为**转换类型的函数**（实际上是模板函数），`std::move`无条件地把参数转换为右值，而`std::forward`在满足条件下才会执行`std::move`的转换。
 
-> `std::move`接收一个对象的引用（准确地说，是**通用引用**），然后返回相同对象的**右值引用**。
+> std::move接收一个对象的引用（准确地说，是**通用引用**），然后返回相同对象的**右值引用**。
 
 近似的实现方式如下：
 ~~~cpp
@@ -616,7 +980,7 @@ decltype(auto) move(T&& param) {
 ~~~
 注意：想移动对象时，不要声明为`const`
 
-> `std::forward`仅当参数是用右值初始化时，才会把它转换为右值。具体如何操作见[条款28](#28)。
+> std::forward仅当参数是用右值初始化时，才会把它转换为右值。具体如何操作见[条款28](#28)。
 
 通常`std::forward`可以替代`std::move`，但也有不同点：
 - `std::move`通常会造成移动，而`std::forward`只是传递转发一个对象给另一个函数，而保持原来的左值性质或者右值性质
