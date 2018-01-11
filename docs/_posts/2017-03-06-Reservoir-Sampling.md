@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Reservoir Sampling"
+title:  "水池采样 Reservoir Sampling"
 date:   2017-03-06 21:00:00 +0800
 categories: [algorithms]
 tags: [sample]

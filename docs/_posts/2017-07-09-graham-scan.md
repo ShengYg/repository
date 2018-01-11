@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "graham scan"
+title:  "图算法graham scan"
 date:   2017-07-09 14:00:00 +0800
 categories: [algorithms]
 tags: [geometry]

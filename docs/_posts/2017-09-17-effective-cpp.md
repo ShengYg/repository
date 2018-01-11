@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "effective cpp note"
+title:  "effective c++ note"
 date:   2017-09-17 14:00:00 +0800
 toc: true
 categories: [cpp]
