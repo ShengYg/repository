@@ -27,6 +27,7 @@ description: effective modern c++
   - [13. 比起iterator更偏爱const_iterator](#13)
   - [14. 把不发出异常的函数声明为noexcept](#14)
   - [15. 尽可能使用constexpr](#15)
+  - [16. 使const成员函数成为线程安全函数](#16)
   - [17. 理解特殊成员函数的生成](#17)
 - 第4章 智能指针
   - [18. 用std::unique_ptr管理独占所有权的资源](#18)
@@ -676,6 +677,45 @@ constexpr auto mid = midpoint(p1, p2);
 ~~~
 
 在C++11，有两个限制因素妨碍把Point的成员变量setX和setY声明为constexpr。第一，它们改变了它们操作的值，constexpr成员函数是隐式声明为const的。第二，它们的返回类型是void。但是这两个限制在C++14被解除了，所以在C++14，**设置函数也可以constexpr**
+
+<a name='16'></a>
+### 16. 使const成员函数成为线程安全函数
+例子：多项式求根。const成员函数通常是线程安全的，除非含有mutable成员变量。
+~~~cpp
+class Polynomial {
+public:
+	using RootsType = std::vector<double>;
+	RootsType roots() const{	// 通常不改变成员，设为const
+		if (!rootsAreValid)  {
+			...		// 计算并存储结果
+			rootsAreVaild = true;
+		}
+		return rootVals;
+	}
+private:
+	mutable bool rootAreValid{ false };	// 可能被改变，设为mutable
+	mutable RootsType rootVals{};
+};
+~~~
+解决办法是使用`mutex`。mutex是一个只可移动类型，使得多项式类也只能被移动。
+
+~~~cpp
+class Polynomial {
+public:
+	RootsType roots() const {
+		std::lock_guard<std::mutex> g(m);	// 加锁
+		if (!rootsAreValid) {
+			...
+			rootsAreValid = true;
+		}
+		return rootVals;
+	}						// 解锁
+private:
+	mutable std::mutex m;
+};
+~~~
+
+使用`std::atomic`变量可能比互斥锁提供更好的性能，不过它们只适用于**单一变量和单一存储单元**。
 
 <a name='17'></a>
 ### 17. 理解特殊成员函数的生成
@@ -1536,7 +1576,19 @@ boundPW(1930);		// 传递各种类型
 auto boundPW = [pw](const auto& param){ pw(param); }
 ~~~
 
+<a name='42'></a>
+### 42. 考虑emplacement代替插入
+`emplace`拿着构造函数进行对象的构造，然后插入到容器中，避免了临时对象的构造和析构开销。
+~~~cpp
+template<class T, class Allocator = allocator<T>>
+class vector {
+public:
+	void push_back(const T& x);
+	void push_back(T&& x);
+};
 
+template <class... Args>
+void emplace_back (Args&&... args);
+~~~
 
-
-
+对于资源管理类，采用传统的插入，`emplace`可能导致内存泄露。
