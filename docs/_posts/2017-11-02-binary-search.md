@@ -7,6 +7,11 @@ tags: []
 description: 二分查找 binary search
 ---
 
+Template:
+<center>
+<img src="{{ site.baseurl }}/assets/pic/binary_search_template.png" height="400px" >
+</center>
+
 ~~~cpp
 int lower(vector<int>& v, int first, int last, int val){
     int len = last - first;
