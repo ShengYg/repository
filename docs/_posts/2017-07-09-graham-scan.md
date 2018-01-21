@@ -21,61 +21,54 @@ description:
 1. 输出stack
 
 
-~~~python
-class Point(object):
-    def __init__(self, a=0, b=0):
-        self.x = a
-        self.y = b
-        
-    def __str__(self):
-        return "{}, {}".format(self.x, self.y)
+~~~cpp
+struct node {
+    int x;
+    int y;
+    int id;
+} node[100005], output[100005];
+int n;
 
-def comp(a, b):
-    if a.y == b.y:
-        return 1 if a.x - b.x > 0 else -1
-    return 1 if a.y - b.y > 0 else -1
+int cross(node p0, node p1, node p2) {
+    //计算叉乘，注意p0,p1,p2的位置，这个决定了方向
+    return (int)(p1.x-p0.x)*(p2.y-p0.y)-(int)(p1.y-p0.y)*(p2.x-p0.x);
+}
 
-# counterclockwise
-def cck(p, a, b):
-    return (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x)
+int dis(node a, node b) {
+    //计算距离，这个用在了当两个点在一条直线上
+    return(int)(a.x-b.x)*(a.x-b.x)+(int)(a.y-b.y)*(a.y-b.y);
+}
+bool cmp(node p1, node p2) {
+    //极角排序
+    int z = cross(node[0], p1, p2);
+    if( z>0 || (z==0 && dis(node[0],p1) < dis(node[0],p2)))
+        return 1;
+    return 0;
+}
+void Graham() {
+    int k=0;
+    for(int i=0; i<n; i++)
+        if(node[i].y<node[k].y || (node[i].y==node[k].y&&node[i].x<node[k].x))
+            k = i;
+    swap(node[0], node[k]);         //找左下的点p0
+    sort(node+1, node+n, cmp);      //以node[0]为基点排序
+    int top = 1;
+    output[0] = node[0];
+    output[1] = node[1];
+    for(int i=2; i<n; i++) {        //控制进栈出栈
+        while(cross(output[top-1], output[top], node[i]) < 0 && top)
+            top--;
+        top++;
+        output[top] = node[i];
+    }
+}
 
-def dis(p, a):
-    return (a.x - p.x) ** 2 + (a.y - p.y) ** 2
-
-def polarorder(p, a, b):
-    area = cck(p, a[0], b[0])
-    if area == 0:
-        dis1 = dis(p, a[0])
-        dis2 = dis(p, b[0])
-        if dis1 < dis2:
-            a[1] = False
-        else:
-            b[1] = False
-        return 1 if dis1 - dis2 > 0 else -1
-    else:
-        return 1 if - area > 0 else -1
-
-def GrahamScan(points):
-    hull = []
-    n = len(points)
-    point_list = [[p, True] for p in points]
-    
-    point_list = sorted(point_list, cmp=lambda a, b: comp(a[0], b[0]))
-    hull.append(point_list[0][0])
-    
-    point_list = sorted(point_list[1:], cmp=lambda a, b: polarorder(point_list[0][0], a, b))
-    point_list = [p[0] for p in point_list if p[1]]
-    
-    if len(point_list) < 2:
-        return
-    hull.append(point_list[0])
-    hull.append(point_list[1])
-    for i in range(2, len(point_list)):
-        p = point_list[i]
-        top = hull.pop()
-        while(cck(hull[-1], top, p) <= 0):
-            top = hull.pop()
-        hull.append(top)
-        hull.append(point_list[i])
-    return hull
+int main() {
+    cin >> n;
+    for(int i=0; i<n; i++) {
+        cin >> node[i].x >> node[i].y;
+        node[i].id = i;
+    }
+    Graham();
+}
 ~~~
