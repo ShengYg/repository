@@ -21,8 +21,11 @@ description: 基本图算法、图与树、图与树、最短路径、欧拉图
   - [单源最短路径 Dijkstra](#4.1)
   - [所有节点对的最短路径 Floyd](#4.2)
   - [单源最短路径 SPFA](#4.3)
-- [欧拉图](#5)
-- [graham scan](#6)
+- [二分图](#5)
+  - [二分图的判定](#5.1)
+  - [二分图最大匹配](#5.2)
+- [欧拉图](#6)
+- [graham scan](#7)
 
 ---
 
@@ -186,75 +189,119 @@ class Solution(object):
 
 <a name='3'></a>
 ## 最小生成树
+
 <a name='3.1'></a>
-### kruskal
+### Prim
+思路：从已选点的临接边中选择权值最小的边作为树边。
 
-~~~java
-class Edge{
-    public int u;
-    public int v;
-    public double weight;
+复杂度：`O(V^2)`，使用堆能达到`O(VlgV)`
 
-    public Edge(int u, int v, double weight){
-        this.v = v;
-        this.u = u;
-        this.weight = weight;
+<center>
+<img src="{{ site.baseurl }}/assets/pic/prim.png" height="500px" >
+</center>
+
+~~~cpp
+int N, cost[1001], graph[1001][1001];
+bool use[1001];
+
+int prim(){
+    // graph: 邻接矩阵
+    // cost: 每个点的最小权重
+    // 输出： 路径总长度
+    int ans = 0;
+    for(int i = 0; i < N; ++i){
+        cost[i] = graph[0][i];
     }
-}
-
-public class KruskalMST {
-    public static HashSet<Integer>[] adj;
-    public static int[] union;
-    public static ArrayList<Edge> ret;
-
-    public static int find_union(int u){
-        while(union[u] != u)
-            u = union[u];
-        return u;
-    }
-
-    public static void main(String[] args){
-        Scanner in = new Scanner(System.in);
-        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> {
-            if(a.weight > b.weight)
-                return 1;
-            else if(a.weight < b.weight)
-                return -1;
-            else
-                return 0;
-        });
-        int N = in.nextInt(); // N vertices
-        int M = in.nextInt(); // M edges
-        adj = new HashSet[N];
-        Arrays.fill(adj, new HashSet<>());
-        while(M-- != 0){
-            int u = in.nextInt();
-            int v = in.nextInt();
-            double weight = in.nextDouble();
-            pq.add(new Edge(u, v, weight));
-            adj[u].add(v);
-            adj[v].add(u);
-        }
-        union = new int[N];
-        for(int i = 0; i < N; i++)
-            union[i] = i;
-        ret = new ArrayList<>();
-        while(!pq.isEmpty()){
-            Edge e = pq.poll();
-            int root1 = find_union(e.u);
-            int root2 = find_union(e.v);
-            if(root1 != root2) {
-                union[root1] = root2;
-                ret.add(e);
+    use[0] = true;
+    for(int i = 1; i < N; ++i){
+        int minn = INF, minj;
+        for(int j = 1; j < N; ++j){ // 根据cost寻找最短路径
+            if(!use[j] && cost[j] > 0 && cost[j] < minn){
+                minn = cost[j];
+                minj = j;
             }
         }
-        for(Edge e: ret){
-            System.out.print(e.u);
-            System.out.println(e.v);
+        use[minj] = true;
+        ans += minn;                // 增加路径
+        for(int j = 1; j < N; ++j){ // 得到最短路径后更新cost
+            if(!use[j] && graph[minj][j] > 0 && graph[minj][j] < cost[j]){
+                cost[j] = graph[minj][j];
+            }
         }
     }
+    return ans;
+}
+
+int main(){
+    cin >> N;
+    for(int i=0; i<N; i++)
+        for(int j=0; j<N; j++)
+            cin >> graph[i][j];
+    prim();
+};
+~~~
+
+<a name='3.2'></a>
+### kruskal
+思路：从全局找权值最小的边
+
+特点：适合稀疏图，实现比prim简单
+
+<center>
+<img src="{{ site.baseurl }}/assets/pic/prim.png" height="500px" >
+</center>
+
+~~~cpp
+const int MAX = 1000010;
+
+
+struct EDGE {
+    int u, v, w;
+    bool operator < (const EDGE& p)const
+    {
+        return w < p.w;
+    }
+}Edge[MAX];
+int root[MAX];
+
+int get(int id) {
+    if(id == root[id])
+        return root[id];
+    return get(root[id]);
+}
+
+void Union(int u, int v) {
+    if(u>v) swap(u, v);
+    root[v] = root[u];
+}
+
+void Kruscal(int M) {
+    // M: edge
+    // root: union-find
+    ll ans = 0;
+    for(int i = 1; i <= M; i++) {
+        int u, v;
+        if((u = get(Edge[i].u)) != (v = get(Edge[i].v))) {
+            Union(u, v);
+            ans += Edge[i].w;
+        }
+    }
+    cout << ans;
+}
+
+int main() {
+    int N, M;
+    cin >> N >> M;
+    for(int i = 1; i <= N; i++)
+        root[i] = i;
+    for(int i = 1; i <= M; i++)
+        cin >> Edge[i].u >> Edge[i].v >> Edge[i].w;
+    sort(Edge+1, Edge+M+1);
+    Kruscal(M);
+    return 0;
 }
 ~~~
+
 
 
 <a name='4'></a>
@@ -421,8 +468,136 @@ int main() {
 }
 ~~~
 
-
 <a name='5'></a>
+## 二分图
+<a name='5.1'></a>
+### 二分图的判定
+思路：
+1. 选取一个未染色的点u进行染色
+2. 遍历u的相邻节点v：若v未染色，则染色成与u不同的颜色，并重复；若v已经染色，如果u和v颜色相同，判定不可行。
+3. 若所有节点均已染色，则判定可行。
+
+<center>
+<img src="{{ site.baseurl }}/assets/pic/bipartite.png" height="200px" >
+</center>
+
+
+~~~cpp
+const int MAXN = 10000 + 10;
+
+int N, M;                   // N点、M边
+int color[MAXN];            // 颜色
+vector<int> G[MAXN];        // 图
+
+bool dfs(int x){                            // dfs
+    for(int i = 0; i < G[x].size(); ++i){
+        int t = G[x][i];
+        if(color[x] == color[t])            // 颜色相同，返回false
+            return false;
+        if(!color[t]){
+            color[t] = 3 - color[x];        // 染不同颜色
+            if(!dfs(t))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool solve(){
+    for(int i = 1; i <= N; ++i){
+        if(!color[i]){
+            color[i] = 1;
+            if(!dfs(i)) return false;
+        }
+    }
+    return true;
+}
+
+int main(){
+    int T;
+    cin >> T;
+    while(T--){
+        cin >> N >> M;
+        memset(color, 0, sizeof(color));
+        for(int i = 1; i <= N; ++i)
+            G[i].clear();
+
+        int u, v;
+        while(M--){
+            cin >> u >> v;
+            G[u].push_back(v);
+            G[v].push_back(u);
+        }
+        if(solve()){
+            cout << "Correct" << endl;
+        }else{
+            cout << "Wrong" << endl;
+        }
+    }
+    return 0;
+}
+~~~
+
+
+<a name='5.2'></a>
+### 二分图最大匹配
+#### 概念
+1. **匹配**(matching)是一个边集，满足边集中的边两两不邻接。**最大匹配**是一个图所有匹配中，所含匹配边数最多的匹配。
+1. **交错轨**(alternating path)是图的一条简单路径，满足任意相邻的两条边，一条在匹配内，一条不在匹配内。**增广轨**(augmenting path)是一个始点与终点都为未匹配点的交错轨。增广路的一个重要特点是非匹配边比匹配边多一条，可以用来改进匹配。
+1. **增广轨定理**：一个匹配是最大匹配当且仅当没有增广轨。
+
+#### 匈牙利算法
+
+根据**一个匹配是最大匹配当且仅当没有增广路**，求最大匹配就是找增广轨，直到找不到增广轨，就找到了最大匹配。
+
+从G中找出一个未匹配点v，如果没有则算法结束，否则，以v为起点，查找增广路（邻接点是为未匹配点，则返回寻找完成，若v的邻接点u是匹配点，则从u开始查找，直至查找到有未匹配点终止），如果没有找到增广路，则算法终止。
+
+举例：`1->2->0->4->3`
+1. `dfs(0)`，找到匹配`0->2`，返回，不会遍历`0->4`
+2. `dfs(1)`，找到匹配`1->2`，2已经被匹配，因此对2的匹配点重新`dfs(0)`。若有匹配点`1->2->0->4`，cnt加1。（类似于交错路径`0->2`取反形成`1->2->0->4`）
+
+~~~cpp
+vector<int> G[1000];    // 图
+int f[1000];            // 点对应的匹配点
+bool vis[1000];         // 点访问过
+
+bool dfs(int i) {
+    vis[i] = 1;
+    for (int j = 0; j < (int) G[i].size(); ++j)
+        // 情况1：邻接点v没有匹配
+        // 情况2：邻接点v是u的匹配点，从v开始查找
+        if (f[G[i][j]] == -1 || (!vis[f[G[i][j]]] && dfs(f[G[i][j]]))) {
+            f[G[i][j]] = i;
+            f[i] = G[i][j];
+            return 1;
+        }
+    return 0;
+}
+
+int main() {
+    int N, M;
+    cin >> N >> M;
+    memset(f, -1, sizeof(f));
+    while (M--) {
+        int u, v;
+        scanf("%d%d", &u, &v);
+        --u, --v;
+        G[u].push_back(v);
+        G[v].push_back(u);
+    }
+
+    int cnt = 0;
+    for (int i = 0; i < N; ++i) {
+        if (f[i] == -1) {                       // i没有匹配，开始查找
+            memset(vis, 0, sizeof(vis));
+            cnt += dfs(i);
+        }
+    }
+    printf("%d\n", cnt);
+}
+~~~
+
+<a name='6'></a>
 ## 欧拉图
 
 - 无向图欧拉回路：所有顶点的度数都为偶数。
@@ -430,7 +605,7 @@ int main() {
 - 无向图欧拉路径： 之多有两个顶点的度数为奇数，其他顶点的度数为偶数。
 - 有向图欧拉路径： 至多有两个顶点的入度和出度绝对值差1（若有两个这样的顶点，则必须其中一个出度大于入度，另一个入度大于出度）,其他顶点的入度与出度相等。
 
-<a name='6'></a>
+<a name='7'></a>
 ## graham scan
 
 寻找凸包，时间复杂度$O(nlogn)$
