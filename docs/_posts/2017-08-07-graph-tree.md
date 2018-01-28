@@ -33,6 +33,7 @@ description: 基本图算法、图与树、图与树、最短路径、欧拉图
 ## 基本图算法
 <a name='1.1'></a>
 ### 有向无环图的拓扑排序
+#### 算法导论的方法
 深度优先搜索时加入每个点的访问结束时间，按结束时间逆排序。
 
 ~~~java
@@ -69,6 +70,39 @@ class Solution(object):
         self.visited[i] = -1
         self.time += 1
         self.f_time[i] = self.time
+~~~
+
+#### 另一种数据结构
+构建邻接链表，以起点或终点为基准均可以。构建队列，将入度为0的加入队列，进行广度优先搜索。
+~~~cpp
+int main(){
+    int n, m, k;
+    cin >> n >> m >> k;
+    vector<int> indegree(n + 1, 0);
+    vector<int> value(n + 1, 0);                    // 初始值
+    vector<vector<int>> graph(n + 1,vector<int>()); // 邻接链表
+    for (int i = 1;i <= m;++i){
+        int u, v;
+        cin >> u >> v;
+        graph[u].push_back(v);
+        indegree[v]++;
+    }
+    queue<int> q;
+    for (int i = 1;i <= n;++i){         // 入度为0，加入队列
+        if (indegree[i] == 0)
+            q.push(i);
+    }
+    while (!q.empty()){
+        int v = q.front();
+        q.pop();
+        for (auto u : graph[v]){
+            // 更新值
+            if (--indegree[u] == 0)     // 入度为0，加入队列
+                q.push(u);
+        }
+    }
+    // 遍历结果
+}
 ~~~
 
 <a name='2'></a>
@@ -602,8 +636,10 @@ int main() {
 
 - 无向图欧拉回路：所有顶点的度数都为偶数。
 - 有向图欧拉回路：所有顶点的出度与入读相等。
-- 无向图欧拉路径： 之多有两个顶点的度数为奇数，其他顶点的度数为偶数。
+- 无向图欧拉路径： 至多有两个顶点的度数为奇数，其他顶点的度数为偶数。
 - 有向图欧拉路径： 至多有两个顶点的入度和出度绝对值差1（若有两个这样的顶点，则必须其中一个出度大于入度，另一个入度大于出度）,其他顶点的入度与出度相等。
+
+哈密顿回路：经过所有点一次。NP完全问题，有时可以通过`点-->线`转换成欧拉回路。
 
 <a name='7'></a>
 ## graham scan
