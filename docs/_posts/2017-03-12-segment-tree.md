@@ -68,7 +68,7 @@ class Segtree {
 private:
     struct node {
         int l, r;
-        T val, lazy = INF;
+        T val, lazy = INF;	    // val存储题目需要的结果，lazy缓存节点值
         node() {}
         node(int l, int r, T v) : l(l), r(r), val(v) {}
         void modify(T k) { val = k; lazy = k;}		// 可能会变

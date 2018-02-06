@@ -10,7 +10,8 @@ description: 基本图算法、图与树、图与树、最短路径、欧拉图
 ## Table of Contents
 
 - [基本图算法](#1)
-  - [有向无环图拓扑排序](#1.1)
+  - [DFS](#1.1)
+  - [有向无环图的拓扑排序](#1.2)
 - [图与树](#2)
   - [无向图是树](#2.1)
     - [union-find](#2.1.1)
@@ -32,6 +33,48 @@ description: 基本图算法、图与树、图与树、最短路径、欧拉图
 <a name='1'></a>
 ## 基本图算法
 <a name='1.1'></a>
+### DFS
+
+例子：走迷宫
+~~~cpp
+bool visited[50][50];
+int grid[50][50];
+int N;
+int dirs[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
+
+bool dfs(int height, int i, int j){
+    if (grid[i][j] > height)		// 额外限制条件
+        return false;
+    if (visited[i][j])
+        return false;
+    if (i==N-1 && j==N-1)           // 终点条件
+        return true;
+    visited[i][j] = true;
+    for(int k=0; k<4; k++){
+        int ii = i+dirs[k][0];
+        int jj = j+dirs[k][1];
+        if(ii >= 0 && ii < N && jj >= 0 && jj < N){
+            bool ret = dfs(height, ii, jj);
+            if(ret)
+                return ret;
+        }
+    }
+    // visited[i][j] = false;          // 注意！！！
+    return false;
+}
+
+int main() {
+    memset(visited, false, 50 * 50 * sizeof(bool));
+    dfs(10, 0, 0);
+}
+~~~
+
+注意：
+1. 在回溯法函数中，先处理各种限制条件和终点条件，再直接调用子函数，最后处理子函数的返回结果。
+2. 图中某些节点会访问多次。如果每次访问结果都一致，用`visited`做标志位缓存中间结果，在函数开头置为`true`；如果每次访问结果不一致，不能用`visited`做标志位缓存中间结果。
+3. 在树中，每个节点仅访问一次，没必要使用`visited`。
+
+<a name='1.2'></a>
 ### 有向无环图的拓扑排序
 #### 算法导论的方法
 深度优先搜索时加入每个点的访问结束时间，按结束时间逆排序。
@@ -104,6 +147,8 @@ int main(){
     // 遍历结果
 }
 ~~~
+
+> 应用：可以统计图中每个点的访问次数，复杂度$O(m+n)$
 
 <a name='2'></a>
 ## 图与树
