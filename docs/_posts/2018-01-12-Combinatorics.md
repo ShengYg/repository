@@ -2,7 +2,7 @@
 layout: post
 title:  "组合数"
 date:   2018-01-12 14:00:00 +0800
-categories: [Algorithms, math]
+categories: [algorithms, math]
 tags: []
 description: 组合数的计算
 ---
