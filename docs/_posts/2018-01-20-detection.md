@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "detection"
+title:  "检测算法"
 date:   2018-01-20 14:00:00 +0800
 categories: [projects]
 tags: []
@@ -19,6 +19,7 @@ description: detection, deep learning
 - RPN网络（用网络生成anchor来回归bounding-box。anchor与ground-truth比较重叠面积，生成正类与负类，正负比设为1:3）
 - RPN网络与分类回归共享卷积层
 - 依然先提取proposal，区分前景背景，后对前景分类与回归，比较慢
+- 边框回归：x表示平移，w表示缩放（缩放>0，用e指数表示）；当IOU较大时，$ln(1+x)=x$，近似认为是线性变换。
 
 ## YOLO
 <center>
