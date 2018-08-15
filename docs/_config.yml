@@ -8,6 +8,7 @@ redcarpet:
 disqus: dbyll
 google_analytics: dbyll
 title: ShengYg's Blog
+port: 3000
 
 url: "https://shengyg.github.io"
 baseurl: "/repository"
