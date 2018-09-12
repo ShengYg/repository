@@ -998,19 +998,12 @@ Widget::~Widget() {}
 
 <a name='23'></a>
 ### 23. 理解std::move和std::forward
-`std::move`不会移动任何东西，`std::forward`不会转发任何东西，在运行期间，它们什么事情都不会做。`std::move`和`std::forward`仅仅是表现为**转换类型的函数**（实际上是模板函数），`std::move`无条件地把参数转换为右值，而`std::forward`在满足条件下才会执行`std::move`的转换。
+`std::move`和`std::forward`仅仅是表现为**转换类型的函数**（实际上是模板函数），`std::move`无条件地把参数转换为右值，而`std::forward`在满足条件下才会执行`std::move`的转换。
 
 > std::move接收一个对象的引用（准确地说，是**通用引用**），然后返回相同对象的**右值引用**。
 
 近似的实现方式如下：
 ~~~cpp
-// C++11
-template <typename T>
-typename remove_reference<T>::type&& move(T&& param) {
-	using ReturnType = typename remove_reference<T>::type&&;
-	return static_cast<ReturnType>(param);
-}
-
 // C++14
 template <typename T>
 decltype(auto) move(T&& param) {
@@ -1040,9 +1033,9 @@ private:
 
 <a name='24'></a>
 ### 24. 区分通用引用和右值引用
-`T&&`由两种含义：
-- 右值引用
-- 通用引用：既可以绑定左值，也可以绑定右值
+`T&&`有两种含义：
+- 右值引用：直接声明变量时
+- 通用引用：包含模板推断（不含const）时，根据T的实际类型推断左值引用或右值引用
 
 ~~~cpp
 // 右值引用
@@ -1055,47 +1048,6 @@ auto&& var2 = var1;
 template<typename T> void f(T&& param);
 ~~~
 
-通用引用通常出现在含有类型推断的地方，常见的有**`auto&&`和模板**。如果初始值是个左值，通用引用相当于左值引用，如果初始值是个右值，通用引用相当于右值引用。
-
-#### 1. 模板
-
-> 注意：通用引用必须精确地定义为`T&&`且含有类型推断
-
-~~~cpp
-template<typename T>
-void f(std::vector<T>&& param);	// param是vector&&类型，右值引用
-
-template<typename T>
-void f(const T&& param);    	// param是const类型，右值引用
-
-template<class T, class Allocator = alloctor<T>>
-class vector {
-public:
-    void push_back(T&& x);	// push_back是实例化vector的一部分，没有推断，右值引用
-};
-
-template<class T, class Allocator = allocator<T>>
-class vector {
-public:
-    template <class... Args>
-    void emplace_back(Args&&... args);	// 通用引用
-};
-~~~
-
-#### 2. auto&&
-
-`auto&&`的变量都是通用引用，在C++14中出现较多。
-
-例子：`func`是个通用引用，可以绑定任何的可执行对象，而`params`是0个或多个通用引用，可以绑定任何数目个任意类型对象。最终结果是，auto通用引用使得可以记录**几乎所有**（见[条款30](#30)）的函数执行的所需时间。
-~~~cpp
-auto timeFuncInvocation = [](auto&& func, auto&&... params){
-	start timer;
-	std::forward<decltype(func)>(func)(
-		std::forward<decltype(params)>(params);
-	);
-	// stop timer and record elapsed time;
-};
-~~~
 
 <a name='25'></a>
 ### 25. 对右值引用使用std::move，对通用引用使用std::forward

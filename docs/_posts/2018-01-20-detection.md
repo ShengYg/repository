@@ -7,6 +7,9 @@ tags: []
 description: detection, deep learning
 ---
 
+- 目录
+{:toc #markdown-toc}
+
 ## rcnn
 - selective search选择proposal，并修正大小，依次通过CNN（重复计算大）
 - 先进行SVM分类，然后bounding box回归
@@ -68,6 +71,14 @@ $$S*S*(B*5+C)$$，整幅图片分成$S*S$个网格，B表示bounding-box信息�
 SSD的每一层feature单独提取，而FPN对后来的feature进行上采样，并且与前面的feature进行融合。
 
 ## RetinaNet
-- focal loss
-- 正负样本不平衡
-- 难易样本不平衡（不能简单丢弃简单样本，因为它们占了大多数）
+- 针对一阶段检测
+- focal loss $FL(p_t)=-\alpha_t(1-p_t)^{\gamma}log(p_t)$，其中$p_t=p(y=1),1-p(y=other)$，$\alpha_t$类似
+    - 正负样本不平衡，$\alpha_t$
+    - 难易样本不平衡（不能丢弃简单负样本，因为它们占了大多数），$\gamma$越大，简单负样本比重越小
+
+## mask-RCNN
+- 额外加一个分支输出分割mask，对每个像素、每一类设置**sigmoid**损失输出
+- RoIAlign：1、除法不取整；2、每个格子的值由4个内部点线性插值得到
+<center>
+<img src="{{ site.baseurl }}/assets/pic/roialign.PNG" height="200px" >
+</center>
