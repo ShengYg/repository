@@ -11,66 +11,157 @@ description: cpp和python总结，各种类型
 {:toc #markdown-toc}
 
 ## C++
-### 引用与指针
+### 基础
+#### 引用与指针
 引用：1、不是对象（变量别名，绑定其他对象）；2、需要初始化；3、绑定后不可改
 
-### 内存
-- 分类：堆、栈、自由存储区、全局/静态存储区、常量存储区
-- 堆栈区别：大小、碎片、动/静、控制权
-- malloc/new：异常、自由存储区、初始化、指定大小
-
-### const
+#### const & static
 - `const int* const p = 10;`，数据，指针
 - `const int& f(const& int) const`，不能修改成员变量
-
-### static
 - 静态局部变量：整个程序（与全局变量的区别：只对当前函数有效）
 - 全局变量：整个程序，外部文件同`extern`访问
 - 静态全局变量：当前cpp文件
-- 静态成员变量：
+- 静态成员变量：类内声明，类外定义
 - 初始化：
     - static：类的外部，不能用构造函数
     - const：构造函数初始化列表
-    - const static：同static
+    - const static：类内直接初始化或类外初始化
 
-### 强制类型转换
+#### 关键词
+- `explicit`：避免隐式类型转换
+- `volatile`：禁止编译器优化（编译器优化后，可能直接从cpu寄存器取值，声明`volatile`表示必须从内存中读取，避免操作系统修改值导致出错）
+- `mutable`：1、允许修改const；2、lambda值捕获时不允许改变值，除非加`mutable`
+- `final`：禁止类继承、虚函数重载
+- `override`：强制虚函数重载
+- `extern`：1、extern "C" 表示按C的规则编译函数；2、声明其他模块中的全局变量或函数
+- `inline`：编译期将对函数的调用展开为函数本体。1、避免调用开销，可能使代码膨胀；2、在头文件内，修改后要重新编译；3、复杂函数不能用（构造、虚函数）
+
+#### 强制类型转换
 - const_cast：去除指针、引用的常量性
 - static_cast：1、基本数据类型的转换，安全；2、类层次转换，没有动态类型检查，向下不安全；
-- dynamic_cast：继承体系中向下转换，安全。
+- dynamic_cast：运行期类型检查，提供安全的向下转换，如果基类指针确实指向派生类，转换成功，否则返回空指针或异常`bad_cast`。基于RTTI实现，所以类需要有虚函数。
 - reinterpret_cast：通常低层次指针类型的转化，如`void* -> int*`
 
-### Overload、Override、Overwrite
+### C++11相关
+#### decltype
+提供**返回值类型后置**的语法，用来声明**返回值类型依赖于参数类型的**函数模板。
+
+#### constexpr
+- 修饰对象：可以看做是const，唯一区别：const对象不一定是常量（可以是变量），不一定需要在编译期知道，而constexpr一定。
+~~~cpp
+int a = 10;
+const int b = a;    // const变量
+const int c = 10;   // const常量，等同于constexpr
+~~~
+- 修饰函数：如果所有参数的值在编译期可知，结果会在编译期得到，否则在运行期得到。可以看做两个函数，一个为编译期常量服务，一个为所有值服务。
+
+#### emplace_back
+- 实现：含通用引用类型的模板函数，能够判断类型是左值还是右值。如果是右值，直接在容器内部构造
+- 好处：在容器中添加字符串常量时，1、调用`push_back`会构造临时变量，然后复制到容器中
+
+#### lambda
+- 包含**值捕获**和**引用捕获**，引用捕获可能导致引用悬挂的问题，因此尽量使用值捕获
+- 只能捕获非静态局部变量（注意类成员的捕获），静态变量的值捕获类似引用捕获的特性
+- 移动捕获（C++14）。`=`左边指定lambda类成员，`=`右边表示类成员初始化方法。
+~~~cpp
+auto pw = std::make_unique<Widget>();
+auto func = [pw = std::move(pw)]{ return pw->isValid(); };  // C++14
+auto func = std::bind(                                      // C++11 
+    [](const std::unique_ptr<Widget>& pw){ return pw->isValid(); },
+    std::make_unique<Widget>()
+);
+~~~
+
+### 继承
+#### Overload、Override、Overwrite
 - overload：同一个类，函数名相同，参数不同，virtual可有可无
 - override：基类与派生类，函数名相同，参数相同，virtual必须有
 - overwrite：基类与派生类
     - 函数名相同，参数不同，virtual可有可无
     - 函数名相同，参数相同，virtual没有
 
-### 关键词
-- `explicit`：避免隐式类型转换
-- `volatile`：禁止编译器优化（编译器优化后，可能直接从cpu寄存器取值，声明`volatile`表示必须从内存中读取，避免操作系统修改值导致出错）
-- `mutable`：允许修改const
-- `final`：禁止类继承、虚函数重载
-- `override`：强制虚函数重载
-- `extern`：1、extern "C" 表示按C的规则编译函数；2、声明其他模块中的全局变量或函数
 
-### inline
-编译期将对函数的调用展开为函数本体。1、避免调用开销，可能使代码膨胀；2、在头文件内，修改后要重新编译；3、复杂函数不能用（构造、虚函数）
-
-### 智能指针
-- `shared_ptr`：多个指针可以同时指向一个对象，当最后一个`shared_ptr`离开作用域时，内存才会自动释放。
-- `weak_ptr`：只增加**弱引用计数**，解决循环引用。
-- `unique_ptr`：独占语义，如果离开作用域或被重写，之前的资源将被释放。
-
-### 构造函数与虚函数
+#### 构造函数与虚函数
 - 构造函数不能是虚函数：虚函数的类型在运行期确定，因此构造对象时无法确定其具体类型。
 - 构造函数不能调用虚函数：语法上可以；但是，构造函数会调用基类的构造函数，进而始终调用基类的虚函数，达不到效果。
 - 解决：工厂模式，为每种要创建的类型单独建一个factory，在factory中建立新对象。
 
-### 虚继承
+#### 虚继承
 - 无论虚基类在继承体系中出现多少次，派生类只包含一个虚基类子对象。
 - 构造顺序：先构造虚基类，剩下的依次进行。
 - 构造原则：虚基类由**最底层派生类**初始化。
+
+### GCC编译链接
+- 预处理：将源代码中的预编译指令进行替换，如`#include`，`#define`，`#ifdef`。
+- 编译：进行语法检查，生成汇编代码
+- 汇编：把汇编代码翻译成机器码，obj文件
+- 链接：将目标文件、系统库文件链接，生成可执行文件
+    - 静态链接：将代码从静态库中拷贝到可执行文件
+    - 动态链接：将代码存到动态链接库中
+
+### 内存
+- 分类：堆、栈、自由存储区、全局/静态存储区、常量存储区
+- 堆栈区别：大小、碎片、动/静、控制权
+- malloc/new：异常、自由存储区、初始化、指定大小
+- `new`过程：1、调用`operator new`申请内存。申请内存未能得到满足时，`operator new`会不断调用指定的错误处理函数称为`new-handle`（这个函数通过`std::set_new_handle`设置），直到找到足够的内存；内存依然不够，则会抛出异常`bad_alloc`；2、调用类的构造函数。如果构造失败，系统自动调用对应的`operator delete`将之前申请的内存释放。
+- `placement new`：带有额外参数的new，通常用于在已开辟的内存上进行构造，参数为内存指针。注意：只有在`placement new`触发的构造函数导致异常时才会调用`placement delete`，其他时候只会调用正常的`operator delete`。
+- 注意：1、构造函数抛出异常，指针没有赋值，无法调用析构函数，会造成内存泄漏，解决办法是类内指针使用智能指针；2、new的构造函数抛出异常，会调用`operator delete`释放申请的内存（只释放类，不会释放类内的指针指向的空间）。
+- 限制对象内存
+    - 只在堆：`protected`析构函数（方便继承），且额外需要一个伪析构函数。
+    - 只在栈：`private void* operator new(...)`
+
+### 智能指针（C++11）
+- `shared_ptr`：多个指针可以同时指向一个对象，当最后一个`shared_ptr`离开作用域时，内存才会自动释放。
+    - 构造函数是`explicit`，不支持隐式转换，需要直接初始化`shared_ptr<int> p(new int(1024));`
+    - 使用`make_shared`
+    - 循环引用：循环中有一个改成`weak_ptr`即可
+    - 结构：指向数据的指针+指向控制块（引用计数，删除器等）的指针
+    - 控制块相关问题
+        - 控制块创建：`make_shared`，由`unique_ptr`构造，由原生指针构造
+        - 问题：一个指针可能对应多个控制块，其中一个控制块引用计数为零就会产生析构，导致另一个指针未定义现象。
+        - 解决：`class A: public std::enable_shared_from_this<A>`，`shared_from_this`方法检查当前智能指针的控制块并使用，如果没有则抛出异常。
+- `unique_ptr`：
+    - 独占语义，如果离开作用域或被重写，之前的资源将被释放。
+    - 和原生指针大小相同，除非自定义删除器。
+- `weak_ptr`：
+    - 指向`shared_ptr`，但不改变引用计数
+    - 不能直接访问对象，需要通过`lock()`返回`shared_ptr`，判断对象是否依然存在，并进一步访问。
+    - `expired`判断对象是否被析构
+
+### type_traits
+概念：定义一些结构体或类，并提供模板类特化和偏特化版本，使用时会引发C++的函数重载机制或模板类匹配，优先匹配特化版本，实现同一种操作因类型不同而异的效果。
+~~~cpp
+template<typename _Tp> struct remove_const              // 泛化
+{typedef _Tp   type;};
+template<typename _Tp> struct remove_const<_Tp const>   // 特化
+{typedef _Tp   type;};
+
+//常量包装类型
+template <class T, T v>
+struct integral_constant
+{
+    static const T     value = v;
+    typedef T          value_type;
+    typedef integral_constant<T, v> type;
+};
+
+//定义true和false两个类型
+typedef integral_constant<bool, true>  true_type;
+typedef integral_constant<bool, false> false_type;
+
+template<typename> //泛化
+struct __is_void_helper : public false_type{};
+
+template<>  //特化
+struct __is_void_helper<void> : public true_type{};
+
+//is_void
+template<typename _Tp>
+struct is_void : public __is_void_helper<typename remove_cv<_Tp>::type>::type{};
+~~~
+
+
+
 
 ## python
 ### 装饰器
