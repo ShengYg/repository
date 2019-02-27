@@ -1,9 +1,10 @@
-source 'https://rubygems.org'
+source 'https://gems.ruby-china.com/'
 gem 'jekyll'
 
 group :jekyll_plugins do
   gem "jekyll-paginate"
   gem "pygments.rb"
   gem 'redcarpet'
-  gem 'wdm', '>=0.1.0'
+  # gem 'listen', '~> 3.0'
+  # gem 'wdm', '>= 0.1.0' if Gem.win_platform?
 end
