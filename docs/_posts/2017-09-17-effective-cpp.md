@@ -110,7 +110,7 @@ const int& f (const& int) const { }	// 最后一个const表示成员函数不修
 ~~~cpp
 class A{
 private:
-	mutable int a;
+    mutable int a;
 }
 
 class A{
@@ -152,19 +152,19 @@ A& f(){
 ~~~cpp
 class A{
 private:
-	A(const A&);
-	A& operator=(const A&);
+    A(const A&);
+    A& operator=(const A&);
 }
 ~~~
 如果在成员函数或友元函数中调用它，会发生连接器错误。可以通过定义一个基类将错误提前至编译器。
 ~~~cpp
 class Uncopyable{
 protected:
-	Uncopyable() {}
-	~Uncopyable() {}
+    Uncopyable() {}
+    ~Uncopyable() {}
 private:
-	Uncopyable(const Uncopyable&) {};
-	Uncopyable& operator=(const Uncopyable&){};
+    Uncopyable(const Uncopyable&) {};
+    Uncopyable& operator=(const Uncopyable&){};
 }
 
 class A: private Uncopyable { }
@@ -257,19 +257,19 @@ const Rational operator*(const Rational& lhs, const Rational& rhs){
 ~~~cpp
 class A{
 public:
-	void swap(A& other){
-		using std::swap;
-		swap(p, other.p);
-	}
+    void swap(A& other){
+        using std::swap;
+        swap(p, other.p);
+    }
 private:
 	Ap* p;
 }
 
 namespace std{
-	// 采用非成员函数实现swap
-	template<> void swap<A>(A& a, A& b){
-		a.swap(b);
-	}
+// 采用非成员函数实现swap
+template<> void swap<A>(A& a, A& b){
+    a.swap(b);
+}
 }
 ~~~
 上述例子，在类`A`中用`std::swap`实现指针的交换，在`std`空间实现`swap`的特例化。`template<>`表示对`std::swap`实现特例化，`swap<A>`表示特例化成`A`版本。
@@ -278,27 +278,27 @@ namespace std{
 
 ~~~cpp
 namespace std{
-	template<typename T> 
-	void swap<A<T>>(A<T>& a, A<T>& b){// 错误：函数模板不支持偏特化
-		a.swap(b);
-	}
+template<typename T> 
+void swap<A<T>>(A<T>& a, A<T>& b){// 错误：函数模板不支持偏特化
+    a.swap(b);
+}
 }
 
 namespace std{
-	template<typename T> 
-	void swap(A<T>& a, A<T>& b){// 通常可以重载函数，但std禁止
-		a.swap(b);
-	}
+template<typename T> 
+void swap(A<T>& a, A<T>& b){// 通常可以重载函数，但std禁止
+    a.swap(b);
+}
 }
 
 namespace A{ // 解决：添加一个新名字空间
-	template<typename T>
-	class A{ };
+template<typename T>
+class A{ };
 
-	template<typename T>
-	void swap(A<T>& a, A<T>& b){
-		a.swap(b);
-	}
+template<typename T>
+void swap(A<T>& a, A<T>& b){
+    a.swap(b);
+}
 }
 
 // 调用时
@@ -322,10 +322,10 @@ static_cast<T>(expression)	// 强迫隐式转换
 ~~~cpp
 class Derive: public Bass{
 public:
-	virtual void f(){
-		Base::f();		      // 调用Base的f()
-		static_cast<Base>(*this).f(); // 将此对象转型成Base类，然后调用f()
-	}
+    virtual void f(){
+        Base::f();		      // 调用Base的f()
+        static_cast<Base>(*this).f(); // 将此对象转型成Base类，然后调用f()
+    }
 }
 ~~~
 
@@ -345,14 +345,14 @@ public:
 copy-and-swap:
 ~~~cpp
 struct NeedChange{		// 将需要修改的成员置于新的类中
-	shared_ptr<...> ...;
+    shared_ptr<...> ...;
 }
 void A::change(istream& src){
-	using std::swap
-	Lock ml(&mutex);	// 互斥锁
-	shared_ptr<NeedChange> pNew(new NeedChange(*pSrc));	// 获得副本
-	pNew->...;		// 修改副本
-	swap(pSrc, pNew)	// 置换
+    using std::swap
+    Lock ml(&mutex);	// 互斥锁
+    shared_ptr<NeedChange> pNew(new NeedChange(*pSrc));	// 获得副本
+    pNew->...;		// 修改副本
+    swap(pSrc, pNew)	// 置换
 }
 ~~~
 
@@ -380,14 +380,14 @@ inline：将对函数的每一个调用都替换成函数本体。不需要承�
 class B;
 class A{
 private:
-	B b;	// 与类B产生关系，编译时需要B的定义式
-}		// 当B变化时，A需要重新编译
+    B b;    // 与类B产生关系，编译时需要B的定义式
+}           // 当B变化时，A需要重新编译
 
 // method 1
 class AImpl;
 class A{
 private:
-	shared_ptr<AImpl> pImpl; // 编译时不需要B的定义式，实现接口分离
+    shared_ptr<AImpl> pImpl; // 编译时不需要B的定义式，实现接口分离
 }
 
 // method 2
@@ -402,17 +402,17 @@ private:
 ~~~cpp
 class B{
 public:
-	void f(){..}
-	void f(int x){..}
+    void f(){..}
+    void f(int x){..}
 }
 
 class D: private B{
 public:
-	void f(){..}		// 覆盖基类所有f
-	void f(){ 
-		using B::f();	// 使B的函数可见，相当于只覆盖一部分
-		f();
-	}
+    void f(){..}		// 覆盖基类所有f
+    void f(){ 
+        using B::f();	// 使B的函数可见，相当于只覆盖一部分
+        f();
+    }
 }
 ~~~
 
@@ -427,14 +427,14 @@ public:
 ~~~cpp
 class B{
 public:
-	virtual void f(...) = 0
+    virtual void f(...) = 0
 }
 void B::f() {...}		// 提供基类的默认实现
 
 class D: public B{
 public:
-	void f(...) { B::f();}	// 使用基类的默认实现
-	void f(...) { ...}	// 自己实现
+    void f(...) { B::f();}	// 使用基类的默认实现
+    void f(...) { ...}	// 自己实现
 }
 ~~~
 #### #声明一个非虚函数是为了让派生类继承其函数接口和一份强制实现
@@ -448,11 +448,11 @@ public:
 ~~~cpp
 class A{
 public:
-	void f() const{
-		g();		// 可以做些其他事
-	}
+    void f() const{
+        g();		// 可以做些其他事
+    }
 private:
-	virtual void g() const {...}
+    virtual void g() const {...}
 }
 ~~~
 #### #由函数指针实现策略模式
@@ -466,11 +466,11 @@ void f_default(const A&);
 
 class A{
 public:
-	typedef void (*fp)(const A&);
-	explicit A(...);
-	void f() const { return p(*this);}
+    typedef void (*fp)(const A&);
+    explicit A(...);
+    void f() const { return p(*this);}
 private:
-	fp = p
+    fp = p
 }
 ~~~
 #### #由function实现策略模式
@@ -480,11 +480,11 @@ void f_default(const A&);
 
 class A{
 public:
-	typedef function<void (const A&)> fp;
-	explicit A(...);
-	void f() const { return p(*this);}
+    typedef function<void (const A&)> fp;
+    explicit A(...);
+    void f() const { return p(*this);}
 private:
-	fp = p
+    fp = p
 }
 ~~~
 #### #古典策略模式
@@ -498,16 +498,16 @@ private:
 ~~~cpp
 class A{
 public:
-	void f(int x=1) const{	// 不被继承，使得默认参数始终为1
-		g(x);
-	}
+    void f(int x=1) const{	// 不被继承，使得默认参数始终为1
+        g(x);
+    }
 private:
 	virtual void g(x) const = 0;
 }
 
 class B: public A{
 private:
-	virtual void g(x) const;
+    virtual void g(x) const;
 }
 ~~~
 
@@ -523,23 +523,23 @@ private:
 ~~~cpp
 class Timer{
 public:
-	virtual void onTick() const;
+    virtual void onTick() const;
 }
 
 // Widget想利用Timer的计时功能，但本身不是个计时器，因此要private继承
 class Widget: private Timer{
 private:
-	virtual void onTick() const;
+    virtual void onTick() const;
 }
 
 // 复合模型
 class Widget{
 private:
-	class WidgetTimer: public Timer{
-	public:
-		virtual void onTick() const;
-	};
-	WidgetTimer timer;
+    class WidgetTimer: public Timer{
+    public:
+        virtual void onTick() const;
+    };
+    WidgetTimer timer;
 }
 ~~~
 
@@ -575,8 +575,8 @@ private:
 
 ~~~cpp
 template<typename T> f(){
-	T::const_iteration iter(...);		// wrong
-	typename T::const_iteration iter(...);	// right
+    T::const_iteration iter(...);		    // wrong
+    typename T::const_iteration iter(...);  // right
 }
 ~~~
 
@@ -584,11 +584,11 @@ template<typename T> f(){
 
 ~~~cpp
 template<typename T>
-class D: public B<T>::Nested{			// 基类列表，不加
+class D: public B<T>::Nested{               // 基类列表，不加
 public:
-	explicit D(int x): Base<T>::Nested(x){	// 成员初始化列表，加
-		typename Base<T>::Nested temp;	// 加
-	}
+    explicit D(int x): Base<T>::Nested(x){  // 成员初始化列表，加
+        typename Base<T>::Nested temp;      // 加
+    }
 }
 ~~~
 
@@ -596,10 +596,10 @@ public:
 ~~~cpp
 template<typename T>
 void f(T iter){
-	typename std::iterator_traits<T>::value_type temp(*iter);
-	// 换一种写法
-	typedef typename std::iterator_traits<T>::value_type value_type;
-	value_type temp(*iter);
+    typename std::iterator_traits<T>::value_type temp(*iter);
+    // 换一种写法
+    typedef typename std::iterator_traits<T>::value_type value_type;
+    value_type temp(*iter);
 }
 ~~~
 
@@ -610,19 +610,19 @@ void f(T iter){
 template <typename T>
 class Base{
 public:
-	void f() {...;}
+    void f() {...;}
 }
 
 template <typename T>
 class Derive: public Base<T>{
 public:
-	void g(){
-		f();			// error
-		this->f();		// method 1
-		using Base<T>::f();	// method 2
-		f();
-		Base<T>::f();		// method 3，虚函数会因此解绑定
-	}
+    void g(){
+        f();                    // error
+        this->f();              // method 1
+        using Base<T>::f();     // method 2
+        f();
+        Base<T>::f();           // method 3，虚函数会因此解绑定
+    }
 }
 ~~~
 
@@ -631,16 +631,19 @@ public:
 #### 构造模板
 带有基类-派生类关系的两类分别具体化某个`template`，产生出来的两个具现体不带有基类-派生类关系。模板可能被无限量的具体化，可能有无限量的构造函数，因此需要写一个**构造模板**。
 
+**构造模板**可以使得模板的多个实例之间产生“关系”（如继承关系）。
+
 ~~~cpp
 template<typename T>
 class SmartPtr{
 public:
-	// 没有声明explicit，支持指针的隐式转换
-	template<typename U> SmartPtr(const SmartPtr<U>& other)
-	: heldptr(other.get()) {...}	// 支持U*到T*的转换
-	T* get() const {return heldptr;}
+    // 没有声明explicit，支持指针的隐式转换
+    template<typename U> 
+    SmartPtr(const SmartPtr<U>& other)
+        : heldptr(other.get()) {...}	// 支持U*到T*的转换
+    T* get() const {return heldptr;}
 private:
-	T* heldptr;
+    T* heldptr;
 }
 ~~~
 
@@ -651,14 +654,14 @@ private:
 template<class T>
 class shared_ptr{
 public:
-	template<class Y> explicit shared_ptr(Y* p);
-	shared_ptr(shared_ptr const& r);
-	template<class Y> shared_ptr(shared_ptr<Y> const& r);
-	template<class Y> explicit shared_ptr(weak_ptr<Y> const& r);
-	template<class Y> explicit shared_ptr(auto_ptr<Y>& r);
-	shared_ptr& operator=(shared_ptr const& r);
-	template<class Y> shared_ptr& operator=(shared_ptr<Y> const& r);
-	template<class Y> shared_ptr& operator=(auto_ptr<Y>& r);
+    template<class Y> explicit shared_ptr(Y* p);
+    shared_ptr(shared_ptr const& r);
+    template<class Y> shared_ptr(shared_ptr<Y> const& r);
+    template<class Y> explicit shared_ptr(weak_ptr<Y> const& r);
+    template<class Y> explicit shared_ptr(auto_ptr<Y>& r);
+    shared_ptr& operator=(shared_ptr const& r);
+    template<class Y> shared_ptr& operator=(shared_ptr<Y> const& r);
+    template<class Y> shared_ptr& operator=(auto_ptr<Y>& r);
 }
 ~~~
 
@@ -672,13 +675,13 @@ public:
 template<typename T>
 class Rational{
 public:
-	Rational(const T& numerator=0, const T& demoninator=1);
-	const T numerator() const;
-	const T demoninator() const;
-	// 声明时Rational<T> 可以被替换成Rational
-	friend const Rational operator*(const Rational& lhs, const Rational& rhs){
-		return Rational(...);
-	}// 这个是函数，不是函数模板
+    Rational(const T& numerator=0, const T& demoninator=1);
+    const T numerator() const;
+    const T demoninator() const;
+    // 声明时Rational<T> 可以被替换成Rational
+    friend const Rational operator*(const Rational& lhs, const Rational& rhs){
+        return Rational(...);
+    }// 这个是函数，不是函数模板
 }
 ~~~
 
@@ -695,32 +698,32 @@ public:
 template<...>
 class deque{
 public:
-	class iterator{
-	public:	
-		typedef random_access_iterator_tag iterator_category;
-	};
+    class iterator{
+    public:	
+        typedef random_access_iterator_tag iterator_category;
+    };
 }
 
 template<typename IterT>
 struct iterator_traits{
-	typedef typename IterT::iterator_category iterator_category;
+    typedef typename IterT::iterator_category iterator_category;
 }
 
 template<typename IterT>
 struct iterator_traits<IterT*>{
-	typedef random_access_iterator_tag iterator_category;
+    typedef random_access_iterator_tag iterator_category;
 }
 
 // 定义各种类型的重载版本
 template<typename IterT, typename DistT>
 void doAdvance(IterT& iter, DistT d, std::random_access_iterator_tag){
-	iter += d;
+    iter += d;
 }
 
 // 调用重载函数
 template<typename IterT, typename DistT>
 void advance(IterT& iter, DistT d){
-	doAdvence(iter, d, typename std::iterator_traits<IterT>::iterator_cateroty());
+    doAdvence(iter, d, typename std::iterator_traits<IterT>::iterator_cateroty());
 }
 ~~~
 
@@ -729,8 +732,8 @@ void advance(IterT& iter, DistT d){
 
 当`operator new`抛出异常之前，它会先调用客户指定的错误处理函数，称为new-handler。客户通过set_new_handler指定new-handler。
 ~~~cpp
-typedef void (*new_handler)();				// new_handle为函数指针
-new_handler set_new_handler(set_new_handler p) throw();	// 返回当前的new_handler，参数为新的new_handler
+typedef void (*new_handler)();                          // new_handle为函数指针
+new_handler set_new_handler(set_new_handler p) throw(); // 返回当前的new_handler，参数为新的new_handler
 ~~~
 
 当`operator new`无法申请足够的内存时，它会不断调用new-handler函数。因此，一个设计良好的new-handler必须有一下特征：
@@ -743,30 +746,30 @@ new_handler set_new_handler(set_new_handler p) throw();	// 返回当前的new_ha
 // handler资源管理类
 class NewHandlerHolder{
 public:
-	explicit NewHandlerHolder(std::new_handler nh) {...}
-	~NewHandlerHolder() { std::set_new_handler(handler); }
+    explicit NewHandlerHolder(std::new_handler nh) {...}
+    ~NewHandlerHolder() { std::set_new_handler(handler); }
 }
 
 class Widget{
 public:
-	static std::new_handler set_new_handler(std::new_handler p) throw();
-	static void* operator new(std::size_t size) throw(std::bad_alloc);
+    static std::new_handler set_new_handler(std::new_handler p) throw();
+    static void* operator new(std::size_t size) throw(std::bad_alloc);
 private:
-	static std::new_handler currentHandler;
+    static std::new_handler currentHandler;
 }
 
 // 定义
 std::new_handler Widget::currentHandler = 0;
 std::new_handler Widget::set_new_handler(std::new_handler p) throw(){
-	std::new_handler oldHandler = currentHandler;
-	currentHandler = p;
-	return oldHandler;
+    std::new_handler oldHandler = currentHandler;
+    currentHandler = p;
+    return oldHandler;
 }
 void* Widget::operator new(std::size_t size) throw(std::bad_alloc){
-	// std、widget保存currentHandler， h保存之前的handler，
-	// h析构时将std设为之前的handler
-	NewHandlerHolder h(std::set_new_handler(currentHandler));
-	return ::operator new(size);
+    // std、widget保存currentHandler， h保存之前的handler，
+    // h析构时将std设为之前的handler
+    NewHandlerHolder h(std::set_new_handler(currentHandler));
+    return ::operator new(size);
 }
 ~~~
 可以将类Widget重新定义成基类模板，具体的类只需继承自这个模板即可。
@@ -784,15 +787,15 @@ static const int signature = 0xDEADBEEF;
 typedef unsigned char Byte;
 
 void* operator new(std::size_t size) throw(std::bad_alloc){
-	using namespace std;
-	size_t realsize = size + 2 * sizeof(int);
-	void* pMem = malloc(realsize);
-	if(!pMem) throw bad_alloc();
-	
-	*(static_cast<int*>(*pMem)) = signature;
-	*(reinterpret_cast<int*>(static_cast<Byte*>(*pMem)+realsize-sizeof(int))) = signature;
-	
-	return static_cast<Byte*>(*pMem) + sizeof(int);
+    using namespace std;
+    size_t realsize = size + 2 * sizeof(int);
+    void* pMem = malloc(realsize);
+    if(!pMem) throw bad_alloc();
+
+    *(static_cast<int*>(*pMem)) = signature;
+    *(reinterpret_cast<int*>(static_cast<Byte*>(*pMem)+realsize-sizeof(int))) = signature;
+
+    return static_cast<Byte*>(*pMem) + sizeof(int);
 }
 ~~~
 <a name='51'></a>
@@ -801,8 +804,8 @@ void* operator new(std::size_t size) throw(std::bad_alloc){
 ~~~cpp
 //operator new 的继承版本
 void* Base::operator new(std::size_t size) throw(std::bad_alloc){
-	if(size != sizeof(Base))
-		return ::operator new(size);	// 派生类调用系统版本
+    if(size != sizeof(Base))
+        return ::operator new(size);    // 派生类调用系统版本
 }
 ~~~
 
@@ -818,30 +821,30 @@ void* Base::operator new(std::size_t size) throw(std::bad_alloc){
 ~~~cpp
 class StandardNewDeleteForms{
 public:
-	// 标准版本
-	static void* operator new(std::size_t size) throw(std::bad_alloc)
-		{ return ::operator new(size); }
-	static void operator delete(void* pMem) throw()
-		{ ::operator delete(pMem); }
-	// 定位版本
-	static void* operator new(std::size_t size, void* ptr) throw()
-		{ return ::operator new(size, ptr); }
-	static void operator delete(void* pMem, void* ptr) throw()
-		{ ::operator delete(pMem, ptr); }
-	// nothrow版本
-	static void* operator new(std::size_t size, const std::nothrow_t& nt) throw()
-		{ return ::operator new(size, nt); }
-	static void operator delete(void* pMem, const std::nothrow_t& nt) throw()
-		{ ::operator delete(pMem); }
+    // 标准版本
+    static void* operator new(std::size_t size) throw(std::bad_alloc)
+        { return ::operator new(size); }
+    static void operator delete(void* pMem) throw()
+        { ::operator delete(pMem); }
+    // 定位版本
+    static void* operator new(std::size_t size, void* ptr) throw()
+        { return ::operator new(size, ptr); }
+    static void operator delete(void* pMem, void* ptr) throw()
+        { ::operator delete(pMem, ptr); }
+    // nothrow版本
+    static void* operator new(std::size_t size, const std::nothrow_t& nt) throw()
+        { return ::operator new(size, nt); }
+    static void operator delete(void* pMem, const std::nothrow_t& nt) throw()
+        { ::operator delete(pMem); }
 }
 
 class Widget: public StandardNewDeleteForms{
 public:
-	using StandardNewDeleteForms::operator new;
-	using StandardNewDeleteForms::operator delete;
+    using StandardNewDeleteForms::operator new;
+    using StandardNewDeleteForms::operator delete;
 
-	static void* operator new(std::size_t size, std::ostream& logStream) throw(std::bad_alloc);
-	static void operator delete(void* pMem, std::ostream& logStream) throw();
+    static void* operator new(std::size_t size, std::ostream& logStream) throw(std::bad_alloc);
+    static void operator delete(void* pMem, std::ostream& logStream) throw();
 }
 ~~~
 

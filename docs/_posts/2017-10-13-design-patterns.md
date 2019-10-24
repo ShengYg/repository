@@ -304,7 +304,7 @@ private:
 
 考虑装操作系统，有多种配置的计算机，同样也有多款操作系统。可以将操作系统和计算机分别抽象出来，让它们各自发展，减少它们的耦合度。
 <center>
-<img src="{{ site.baseurl }}/assets/pic/bridge.png" height="200px" >
+<img src="{{ site.baseurl }}/assets/pic/bridge.png" height="150px" >
 </center>
 
 ~~~cpp
@@ -347,7 +347,7 @@ public:
 ## 组成模式 Composite
 将对象组合成**树形**结构以表示“部分-整体”的层次结构。组合使得用户对单个对象和组合对象的使用具有一致性。这种树形结构在现实生活中随处可见，比如一个集团公司，它有一个母公司，下设很多家子公司。不管是母公司还是子公司，都有各自直属的财务部、人力资源部、销售部等。对于母公司来说，不论是子公司，还是直属的财务部、人力资源部，都是它的部门。整个公司的部门拓扑图就是一个树形结构。
 <center>
-<img src="{{ site.baseurl }}/assets/pic/composite.png" height="300px" >
+<img src="{{ site.baseurl }}/assets/pic/composite.png" height="250px" >
 </center>
 
 ~~~cpp

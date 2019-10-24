@@ -141,7 +141,7 @@ f(name);	// T -> const char[8]
 ~~~cpp
 template <typename T, std::size_t N>
 constexpr std::size_t arraySize(T (&)[N]) noexcept {
-	return N;
+     return N;
 }
 ~~~
 将变量声明为`constexpr`，使编译器来确定变量值是否为常量表达式。
@@ -152,9 +152,9 @@ constexpr std::size_t arraySize(T (&)[N]) noexcept {
 void someFunc(int, double);
 
 template <typename T>
-void f1(T param)；
+void f1(T param);
 template <typename T>
-void f2(T& param)；
+void f2(T& param);
 
 f1(someFunc);	// 传值，ParamType 类型为void (*)(int, double)
 f2(someFunc);	// 引用语义，ParamType类型为void (&)(int, double)
@@ -189,7 +189,7 @@ f({ 11, 23, 9 });	// T -> int
 
 ~~~cpp
 auto createInitList(){
-	return  { 1, 2, 3 };	// wrong
+     return  { 1, 2, 3 };	// wrong
 }
 
 std::vector<int> v;
@@ -206,8 +206,8 @@ resetV({ 1, 2, 3});		// wrong
 // C++11
 template <typename Container, typename Index>
 auto authAndAccess(Container &c, Index i) -> decltype(c[i]) {
-	authenticateUser();
-	return c[i];
+     authenticateUser();
+     return c[i];
 }
 ~~~
 这是c++11的返回类型后置语法，`auto`并没有进行类型推断，返回类型取决于`->`之后的参数。C++14可以推断所有函数的返回类型，因此可以省略`->`。
@@ -217,8 +217,8 @@ auto authAndAccess(Container &c, Index i) -> decltype(c[i]) {
 template <typename Container, typename Index>
 decltype(auto)		// Attention!!!
 authAndAccess(Container &c, Index i) {
-    authenticateUser();
-    return c[i];
+     authenticateUser();
+     return c[i];
 }
 ~~~
 绝大多数容器的`operator[]`函数的返回类型为`T&`，使用模板参数类型推断后会变成`T`。因此在C++14中制定了`decltype(auto)`，返回确切类型。当然`decltype(auto)`不只是可以用在函数返回值类型上，它也可以用在声明变量上。
@@ -232,8 +232,8 @@ authAndAccess(Container &c, Index i) {
 template <typename Container, typename Index>
 decltype(auto) 
 authAndAccess(Container &&c, Index i) {
-    authenticateUser();
-    return std::forward<Container>(c)[i];
+     authenticateUser();
+     return std::forward<Container>(c)[i];
 }
 ~~~
 
@@ -348,9 +348,9 @@ std::vector<int> v{1, 3, 5};
 
 // 类内成员初始化
 class Widget {
-	int x{ 0 };
-	int y( 0 );	// wrong
-	int z = 0;
+     int x{ 0 };
+     int y( 0 );	// wrong
+     int z = 0;
 }
 
 // 拷贝对象
@@ -382,8 +382,8 @@ std::vector<int> v2{10, 20};
 ~~~cpp
 template <typename T, typename... Ts>
 void doSomeWork(Ts&&... params) {
-	T localObject(std::forward<Ts>(params)...);
-	T localObject{std::forward<Ts>(params)...};
+     T localObject(std::forward<Ts>(params)...);
+     T localObject{std::forward<Ts>(params)...};
 }
 
 std::vector<int> v;
@@ -405,8 +405,8 @@ using MuxGuard = std::lock_guard<std::mutex>;
 
 template <typename FuncType, typename MuxType, typename PtrType>
 auto lockAndCall(FuncType func, MuxType &mutex, PtrType ptr) -> decltype(func(ptr)){
-	MuxGuard g(mutex);
-	return func(ptr);
+     MuxGuard g(mutex);
+     return func(ptr);
 }
 
 auto result = lockAndCall(f3, f3m, nullptr);	// nullptr支持各种隐式转换
@@ -432,7 +432,7 @@ using MyAllocList = std::list<T, MyAlloc<T>>;
 
 template <typename T>
 class Widget {
-	MyAllocList<T> list;	// 在模板中创建list
+     MyAllocList<T> list;	// 在模板中创建list
 };
 
 MyAllocList<Widget> lw;		// 创建list
@@ -440,12 +440,12 @@ MyAllocList<Widget> lw;		// 创建list
 // typedef
 template <typename T>
 struct MyAllocList { 
-  typedef std::list<T, MyAlloc<T>> type;
+     typedef std::list<T, MyAlloc<T>> type;
 };
 
 template <typename T>
 class Widget {
-	typename MyAllocList<T>::type list;
+     typename MyAllocList<T>::type list;
 };
 
 MyAllocList<Widget>::type lw;
@@ -499,17 +499,17 @@ enum class Status: std::uint32_t;	// 基础类型是uint32_t
 template <class charT, class traits = char_traits<char T>>
 class basic_ios : public ios_base {
 public:
-	...
+     ...
 private:
-	basic_ios(const basic_ios&);
-	basic_ios& operator=(const basic_ios&);
+     basic_ios(const basic_ios&);
+     basic_ios& operator=(const basic_ios&);
 };
 
 template <class charT, class traits = char_traits<char T>>
 class basic_ios : public ios_base {
 public:
-	basic_ios(const basic_ios&) = delete;
-	basic_ios& operator=(const basic_ios&) = delete;
+     basic_ios(const basic_ios&) = delete;
+     basic_ios& operator=(const basic_ios&) = delete;
 };
 ~~~
 
@@ -532,11 +532,11 @@ void processPointer<const void>(const void *) = delete;
 
 class Widget {
 public:
-	template <typename T>
-	void processPointer(T *ptr) {...}
+     template <typename T>
+     void processPointer(T *ptr) {...}
 private:
-	template<>	// 错误，成员模板的特例化与主模板的访问权限不相同是不可能
-	void processPointer<void>(void *);
+     template<>	// 错误，成员模板的特例化与主模板的访问权限不相同是不可能
+     void processPointer<void>(void *);
 };
 template<>		// 正确
 void Widget::processPointer<void>(void *) = delete;
@@ -556,11 +556,11 @@ void Widget::processPointer<void>(void *) = delete;
 ~~~cpp
 class Widget {
 public:
-	using DataType = std::vector<double>;
-	DataType& data() & { return values; }
-	DataType data() && { return std::move(values); }
+     using DataType = std::vector<double>;
+     DataType& data() & { return values; }
+     DataType data() && { return std::move(values); }
 private:
-	DataType values;
+     DataType values;
 };
 
 Widget makeWidget();
@@ -574,7 +574,7 @@ auto vals2 = makeWidget().data();	// 调用右值引用
 ~~~cpp
 class Derived: public Base {
 public:
-    virtual void f() const override;
+     virtual void f() const override;
 };
 ~~~
 
@@ -584,10 +584,10 @@ C++11只加了非成员函数版本的begin和end，而没有加入cbegin，cend
 ~~~cpp
 template <typename C, typename V>
 void findAndInsert(C& container, const V& targetVal, const V& insertVal) {
-    using std::cbegin;
-    using std::cend;
-    auto it = std::find(cbegin(container), cend(container), targetVal);
-    container.insert(it, insertVal);
+     using std::cbegin;
+     using std::cend;
+     auto it = std::find(cbegin(container), cend(container), targetVal);
+     container.insert(it, insertVal);
 };
 ~~~
 
@@ -604,8 +604,8 @@ void swap(T (&a)[N], T (&b)[N]) noexcept(noexcept(swap(*a,*b)));
 //
 template <class T1, class T2>
 struct pair {
-	void swap(pair& p) noexcept(noexcept(swap(first, p.first)) &&
-			noexcept(swap(second, p.second)));
+     void swap(pair& p) noexcept(noexcept(swap(first, p.first)) &&
+          noexcept(swap(second, p.second)));
 };
 ~~~
 3. 所有的**释放内存函数和析构函数**，不管是用户自定义还是编译器生成的，都是隐式noexcept的。
@@ -639,12 +639,12 @@ std::array<int, arraySize> data;	// 错误，arraySize的值在编译期间不�
 在C++11，constexpr只能有一个return语句。C++14不限制。
 ~~~cpp
 constexpr int pow(int base, int exp) noexcept{
-	// C++11
-	return (exp == 0 ? 1 : base * pow(base, exp - 1));
-	// C++14
-	auto result = 1;
-	for (int i=0; i<exp; ++i) result *= base;
-	return results;
+     // C++11
+     return (exp == 0 ? 1 : base * pow(base, exp - 1));
+     // C++14
+     auto result = 1;
+     for (int i=0; i<exp; ++i) result *= base;
+     return results;
 }
 
 constexpr auto numCouds = 5;
@@ -655,23 +655,23 @@ constexpr函数要求持有和返回的类型为**字面值类型**。在C++中�
 ~~~cpp
 class Point {
 public:
-	// constexpr构造函数，表明constexpr对象
-	constexpr Point(double xVal = 0, double yVal = 0) noexcept
-	: x(xVal), y(yVal) {}
+     // constexpr构造函数，表明constexpr对象
+     constexpr Point(double xVal = 0, double yVal = 0) noexcept
+     : x(xVal), y(yVal) {}
 
-	constexpr double xValue() const noexcept { return xVal; }
-	constexpr double yValue() const noexcept { return yVal; }
+     constexpr double xValue() const noexcept { return xVal; }
+     constexpr double yValue() const noexcept { return yVal; }
 
-	void setX(double newX) noexcept { x = newX; }
-	void setY(double newY) noexcept { y = newY; }
+     void setX(double newX) noexcept { x = newX; }
+     void setY(double newY) noexcept { y = newY; }
 
 private:
-	double x, y;
+     double x, y;
 };
 
 constexpr Point p2(28.8, 5.3);
 constexpr Point midpoint(const Point &p1, const Point &p2) noexcept {
-    return { (p1.xValue + p2.xValue)) / 2, (p1.yValue + p2.yValue)) / 2 };
+     return { (p1.xValue + p2.xValue)) / 2, (p1.yValue + p2.yValue)) / 2 };
 }
 constexpr auto mid = midpoint(p1, p2);
 ~~~
@@ -684,17 +684,17 @@ constexpr auto mid = midpoint(p1, p2);
 ~~~cpp
 class Polynomial {
 public:
-	using RootsType = std::vector<double>;
-	RootsType roots() const{	// 通常不改变成员，设为const
-		if (!rootsAreValid)  {
-			...		// 计算并存储结果
-			rootsAreVaild = true;
-		}
-		return rootVals;
-	}
+     using RootsType = std::vector<double>;
+     RootsType roots() const{	// 通常不改变成员，设为const
+          if (!rootsAreValid)  {
+               ...		// 计算并存储结果
+               rootsAreVaild = true;
+          }
+          return rootVals;
+     }
 private:
-	mutable bool rootAreValid{ false };	// 可能被改变，设为mutable
-	mutable RootsType rootVals{};
+     mutable bool rootAreValid{ false };	// 可能被改变，设为mutable
+     mutable RootsType rootVals{};
 };
 ~~~
 解决办法是使用`mutex`。mutex是一个只可移动类型，使得多项式类也只能被移动。
@@ -702,16 +702,16 @@ private:
 ~~~cpp
 class Polynomial {
 public:
-	RootsType roots() const {
-		std::lock_guard<std::mutex> g(m);	// 加锁
-		if (!rootsAreValid) {
-			...
-			rootsAreValid = true;
-		}
-		return rootVals;
-	}						// 解锁
+     RootsType roots() const {
+          std::lock_guard<std::mutex> g(m);	// 加锁
+          if (!rootsAreValid) {
+               ...
+               rootsAreValid = true;
+          }
+          return rootVals;
+     }						// 解锁
 private:
-	mutable std::mutex m;
+     mutable std::mutex m;
 };
 ~~~
 
@@ -729,9 +729,9 @@ private:
 ~~~cpp
 class Widget {
 public:
-	~Widget();
-	Widget(const Widget&) = default;		// 使用默认拷贝构造
-	Widget& operator=(const Widget&) = default;	// 使用默认拷贝复制操作
+     ~Widget();
+     Widget(const Widget&) = default;		// 使用默认拷贝构造
+     Widget& operator=(const Widget&) = default;	// 使用默认拷贝复制操作
 };
 ~~~
 
@@ -758,7 +758,7 @@ std::unique_ptr<Investment>
 makeInvestment(Ts&&... params);
 
 {	// 在局部作用域中生成指针
-	auto pInvestment = makeInvestment(arguments);
+     auto pInvestment = makeInvestment(arguments);
 } 
 ~~~
 
@@ -766,24 +766,24 @@ makeInvestment(Ts&&... params);
 
 ~~~cpp
 auto delInvmt = [](Investment *pInvestment) {
-			makeLogEntry(pInvestment);	// 额外的删除工作
-			delete pInvestment;
-		};
+                    makeLogEntry(pInvestment);	// 额外的删除工作
+                    delete pInvestment;
+               };
 
 template <typename... Ts>
 std::unique_ptr<Investment, decltype(delInvmt)>
 makeInvestment(Ts&&... params) {	// 定义的删除器作为第二个模板参数
-	std::unique_ptr<Investment, decltype(delInvmt)> pInv(nullptr, delInvmt);
-	if (...) {
-		pInv.reset(new Stock(std::forward<Ts>(params)...));
-	}
-	else if (...) {
-		pInv.reset(new Bond(std::forward<Ts>(params)...));
-	}
-	else if (...) {
-		pInv.reset(new RealEstate(std::forward<Ts>(params)...));
-	}
-	return pInv;
+     std::unique_ptr<Investment, decltype(delInvmt)> pInv(nullptr, delInvmt);
+     if (...) {
+          pInv.reset(new Stock(std::forward<Ts>(params)...));
+     }
+     else if (...) {
+          pInv.reset(new Bond(std::forward<Ts>(params)...));
+     }
+     else if (...) {
+          pInv.reset(new RealEstate(std::forward<Ts>(params)...));
+     }
+     return pInv;
 }
 ~~~
 
@@ -825,7 +825,7 @@ std::shared_ptr<Widget> spw(new Wiget, loggingDel);
 - 避免用原生指针构造std::shared_ptr，通常的选择是使用std::make_shared。
 - 如果你一定要用原生指针构造std::shared_ptr，那么直接把new出来的结果传递过去，而不是传递原生指针变量
 ~~~cpp
-std::shared_ptr<Widget> spw1(new Widget， loggingDel);
+std::shared_ptr<Widget> spw1(new Widget, loggingDel);
 std::shared_ptr<Widget> spw2(spw1);	// 调用拷贝构造
 ~~~
 
@@ -834,15 +834,15 @@ std::shared_ptr<Widget> spw2(spw1);	// 调用拷贝构造
 // 模板参数为它的派生类名字
 class Widget : public std::enable_shared_from_this<Widget> {
 public:
-	template<typename... Ts>
-	static std::shared_ptr<Widget> create(Ts&&... params);
-	void process();
+     template<typename... Ts>
+     static std::shared_ptr<Widget> create(Ts&&... params);
+     void process();
 private:
 	...	// 构造函数
 };
 void Widget::process() {
-	// 使用this创建shared_ptr对象，并且不带重复的控制块
-	processedWidgets.emplace_back(shared_from_this());
+     // 使用this创建shared_ptr对象，并且不带重复的控制块
+     processedWidgets.emplace_back(shared_from_this());
 }
 ~~~
 
@@ -933,20 +933,20 @@ Pimpl(“pointer to implementation”) Idiom：通过把类中的成员变量替
 ~~~cpp
 class Widget {			// 在头文件“widget.h”中
 public:
-	Widget();
+     Widget();
 private:
-	std::string name;
-	std::vector<double> data;
-	Gadget g1, g2, g3; 	// 需要头文件gadget.h
+     std::string name;
+     std::vector<double> data;
+     Gadget g1, g2, g3; 	// 需要头文件gadget.h
 };
 
 // C++11改进版本
 class Widget {			// 依然在头文件“widget.h”中
 public:
-    Widget();
+     Widget();
 private:
-    struct Impl;		// 声明实现类
-    Impl *pImpl;		// 声明指针指向实现类
+     struct Impl;		// 声明实现类
+     Impl *pImpl;		// 声明指针指向实现类
 };
 
 #include "widget.h"		// 在实现文件“widget.cpp”
@@ -955,20 +955,20 @@ private:
 #include <vector>
 
 struct Widget::Impl {		// 用原来对象的成员变量来定义实现类
-    std::string name;
-    std::vector<double> data;
-    Gadget g1, g2, g3;
+     std::string name;
+     std::vector<double> data;
+     Gadget g1, g2, g3;
 };
 Widget::Widget() : pImpl(new Impl) {}
 
 // C++14版本
 class Widget {			// 在“widget.h”
 public:
-	Widget();
-	~Widget();
+     Widget();
+     ~Widget();
 private:
-	struct Impl;
-	std::unique_ptr<Impl> pImpl;
+     struct Impl;
+     std::unique_ptr<Impl> pImpl;
 };
 
 #include "widget.h" 		// 在“widget.cpp”
@@ -977,9 +977,9 @@ private:
 #include <vector>
 
 struct Widget::Impl {
-    std::string name;
-    std::vector<double> data;
-    Gadget g1, g2, g3;
+     std::string name;
+     std::vector<double> data;
+     Gadget g1, g2, g3;
 };
 
 Widget::Widget() : pImpl(std::make_unique<Impl>()) {}
@@ -1007,8 +1007,8 @@ Widget::~Widget() {}
 // C++14
 template <typename T>
 decltype(auto) move(T&& param) {
-	using ReturnType = remove_reference_t<T>&&;
-	return static_cast<ReturnType>(param);
+     using ReturnType = remove_reference_t<T>&&;
+     return static_cast<ReturnType>(param);
 }
 ~~~
 注意：想移动对象时，不要声明为`const`
@@ -1022,12 +1022,12 @@ decltype(auto) move(T&& param) {
 ~~~cpp
 class Widget {
 public:
-	// 两种实现
-	Widget(Widget&& rhs) : s(std::move(rhs.s)) { ++moveCtorCalls; }
-	Widget(Widget&& rhs) : s(std::forward<std::string>(rhs.s)) { ++moveCtorCalls; }
+     // 两种实现
+     Widget(Widget&& rhs) : s(std::move(rhs.s)) { ++moveCtorCalls; }
+     Widget(Widget&& rhs) : s(std::forward<std::string>(rhs.s)) { ++moveCtorCalls; }
 private:
-	static std::size_t moveCtorCalls;
-	std::string s;
+     static std::size_t moveCtorCalls;
+     std::string s;
 };
 ~~~
 
@@ -1057,17 +1057,17 @@ template<typename T> void f(T&& param);
 ~~~cpp
 template<typename T>
 void setSignText(T&& text){ 
-	sign.setText(text);	// 使用text，但不修改它
-	auto now = std::chrono::system_clock::now();	// 获取当前时间
-	signHistory.add(now, std::forward<T>(text));	// 有条件地把text转换为右值
+     sign.setText(text);	// 使用text，但不修改它
+     auto now = std::chrono::system_clock::now();	// 获取当前时间
+     signHistory.add(now, std::forward<T>(text));	// 有条件地把text转换为右值
 }
 ~~~
 2. 如果你有个**函数是通过值返回**，然后你函数内返回的是被右值引用或通用引用绑定的对象，那么你应该对你返回的对象使用`std::move`或`std::forward`。
 ~~~cpp
 Matrix operator+(Matrix&& lhs, const Matrix& rhs) {
-	lhs += rhs;
-	return std::move(lhs);	// 移动到返回值
-	return lhs;		// 拷贝到返回值
+     lhs += rhs;
+     return std::move(lhs);	// 移动到返回值
+     return lhs;		// 拷贝到返回值
 }
 ~~~
 3. **RVO**（return value optimization）：在通过值返回的函数中，如果（1）一个局部变量的类型和返回值的类型相同，而且（2）这个局部变量是被返回的对象，那么编译器可能会省略局部变量的拷贝（或移动），此时不要对它们使用std::move或std::forward。
@@ -1078,9 +1078,9 @@ Matrix operator+(Matrix&& lhs, const Matrix& rhs) {
 ~~~cpp
 template<typename T>
 void logAndAdd(T&& name) {
-	auto now = std::chrono::system_clock::now();
-	log(now, "logAndAdd");
-	names.emplace(std::forward<T>(name));
+     auto now = std::chrono::system_clock::now();
+     log(now, "logAndAdd");
+     names.emplace(std::forward<T>(name));
 }
 
 std::multiset<std::string> names;
@@ -1091,9 +1091,9 @@ logAndAdd("Patty Dog");			// 在multisest内创建
 
 std::string nameFromIdx(int idx);
 void logAndAdd(int idx){
-	auto now = std::chrono::system_clock::now();
-	log(now, "logAndAdd");
-	names.emplace(nameFromIdx(idx));
+     auto now = std::chrono::system_clock::now();
+     log(now, "logAndAdd");
+     names.emplace(nameFromIdx(idx));
 }
 short nameIdx;
 logAndAdd(nameIdx);   		// 匹配logAndAdd(T&& name)，错误
@@ -1112,27 +1112,27 @@ std::multiset<std::string> names;
 // 原版本
 template<typename T>
 void logAndAdd(T&& name) {
-	auto now = std::chrono::system_clock::now();
-	log(now, "logAndAdd");
-	names.emplace(std::forward<T>(name));
+     auto now = std::chrono::system_clock::now();
+     log(now, "logAndAdd");
+     names.emplace(std::forward<T>(name));
 }
 // 新版本
 template<typename T>
 void logAndAdd(T&& name) {
-	logAndAddImpl(
-		std::forward<T>(name),
-		// 传入左值引用时有问题，需要移除引用
-		std::is_integral<std::remove_reference<T>()
-	);
+     logAndAddImpl(
+          std::forward<T>(name),
+          // 传入左值引用时有问题，需要移除引用
+          std::is_integral<std::remove_reference<T>()
+     );
 }
 template<typename T>
 void logAndAddImpl(T&& name, std::false_type){
-	auto now = std::chrono::system_clock::now();
-	log(now, "logAndAdd");
-	names.emplace(std::forward<T>(name));
+     auto now = std::chrono::system_clock::now();
+     log(now, "logAndAdd");
+     names.emplace(std::forward<T>(name));
 }
 void logAndAddImpl(int idx, std::true_type){
-	logAndAdd(nameFromIdx(idx);
+     logAndAdd(nameFromIdx(idx);
 }
 ~~~
 
@@ -1144,20 +1144,20 @@ Tag dispatch不能解决完美转发构造函数的问题。当你想要调用�
 ~~~cpp
 class Person {
 public:
-	// 原来代码
-	template<typename T>
-	explicit Person(T&& n) : name(std::forward<T>(n)) {}
-	explicit Person(int idx);
-	// 修改后，只有声明，定义相同
-	template<
-		typename T, 
-		typename = typename std::enable_if<
-			!std::is_same<Person, typename std::decay<T>::type>::value
-		>::type
-	>
-	explicit Person(T&& n);
+     // 原来代码
+     template<typename T>
+     explicit Person(T&& n) : name(std::forward<T>(n)) {}
+     explicit Person(int idx);
+     // 修改后，只有声明，定义相同
+     template<
+          typename T, 
+          typename = typename std::enable_if<
+               !std::is_same<Person, typename std::decay<T>::type>::value
+          >::type
+     >
+     explicit Person(T&& n);
 
-	...
+     ...
 };
 ~~~
 
@@ -1168,13 +1168,13 @@ public:
 ~~~cpp
 class Person {
 public:
-	template<
-		typename T, 
-		typename = typename std::enable_if<
-			!std::is_base_of<Person, typename std::decay<T>::type>::value
-		>::type
-	>
-	explicit Person(T&& n);
+     template<
+          typename T, 
+          typename = typename std::enable_if<
+               !std::is_base_of<Person, typename std::decay<T>::type>::value
+          >::type
+     >
+     explicit Person(T&& n);
 };
 ~~~
 
@@ -1182,19 +1182,19 @@ public:
 ~~~cpp
 class Person {
 public:
-	template<
-		typename T, 
-		typename = typename std::enable_if<
-			!std::is_base_of<Person, typename std::decay<T>::type>::value
-			&&
-			!std::is_integral<std::remove_reference_t<T>>::value
-		>::type
-	>
-	explicit Person(T&& n)
-	: name(std::forward<T>(n)) {...}
+     template<
+          typename T, 
+          typename = typename std::enable_if<
+               !std::is_base_of<Person, typename std::decay<T>::type>::value
+               &&
+               !std::is_integral<std::remove_reference_t<T>>::value
+          >::type
+     >
+     explicit Person(T&& n)
+     : name(std::forward<T>(n)) {...}
 
-	explicit Person(int idx)
-	: name(nameFromIdx(idx)) {...}
+     explicit Person(int idx)
+     : name(nameFromIdx(idx)) {...}
 };
 ~~~
 
@@ -1205,9 +1205,9 @@ public:
 
 ~~~cpp
 static_assert(
-	// 可以从T构造出string变量
-	std::is_constructible<std::string, T>::value,
-	"Parameter n can't be used to construct a std::string"
+     // 可以从T构造出string变量
+     std::is_constructible<std::string, T>::value,
+     "Parameter n can't be used to construct a std::string"
 );
 ~~~
 
@@ -1222,13 +1222,13 @@ static_assert(
 ~~~cpp
 template<typename T>
 void f(T&& fParam){
-	someFunc(std::forward<T>(fParam));
+     someFunc(std::forward<T>(fParam));
 }
 
 // forward工作方式
 template<typename T>
 T&& forward(typename remove_reference<T>::type& param){
-    return static_cast<T&&>(param);
+     return static_cast<T&&>(param);
 }
 ~~~
 
@@ -1254,7 +1254,7 @@ T&& forward(typename remove_reference<T>::type& param){
 ~~~cpp
 template<typename... Ts>
 void fwd(Ts&& ...params){
-	f(std::forward<Ts>(param)...);
+     f(std::forward<Ts>(param)...);
 }
 // 下面两行意思一致，代表完美转发成功
 f( expression );
@@ -1280,7 +1280,7 @@ fwd(il);
 ~~~cpp
 class Widget {
 public:
-	static const std::size_t MinVals = 28;         // MinVals的声明
+     static const std::size_t MinVals = 28;         // MinVals的声明
 };
 const std::size_t Widget::MinVals;			// 定义MinVals
 ~~~
@@ -1315,11 +1315,11 @@ fwd(static_cast<ProcessFuncType>(workOnVal));
 #### 5. 位域（Bitfields）
 ~~~cpp
 struct IPv4Header {
-	std::uint32_t   version : 4,
-			IHL : 4,
-			DSCP : 6,
-			ECN : 2,
-			totalLength : 16;
+     std::uint32_t   version : 4,
+          IHL : 4,
+          DSCP : 6,
+          ECN : 2,
+          totalLength : 16;
 };
 
 void f(std::size_t sz);
@@ -1345,8 +1345,8 @@ using FilterContainer = std::vector<std::function<bool(int)>>;
 FilterContainer filters;
 
 void f(){	// 离开f()，divisor生命期结束，造成引用空悬
-	int divisor = 10;
-	filters.emplace_back([&divisor](int value) { return value % divisor == 0; });
+     int divisor = 10;
+     filters.emplace_back([&divisor](int value) { return value % divisor == 0; });
 }
 ~~~
 解决这个问题的一种办法是对divisor使用默认的值捕获模式。但是，总的来说，默认以值捕获不是对抗空悬的长生不老药。
@@ -1354,23 +1354,23 @@ void f(){	// 离开f()，divisor生命期结束，造成引用空悬
 第一，如果你用值捕获了个**指针**，你在`lambda`创建的闭包中持有这个指针的拷贝，但你不能阻止`lambda`外面的代码删除指针指向的内容，从而导致你拷贝的指针空悬。
 ~~~cpp
 void Widget::addFilter() const {
-	// 捕获了*this，出问题
-	filters.emplace_back([=](int value) { return value % divisor == 0; });
-	// 捕获了this->divisor
-	auto divisorCopy = divisor;
-	filters.emplace_back([divisorCopy](int value) { return value % divisorCopy == 0; });
-	// C++14 广义lambda捕获
-	filters.emplace_back([divisor=divisor](int value) { return value % divisor == 0; });
+     // 捕获了*this，出问题
+     filters.emplace_back([=](int value) { return value % divisor == 0; });
+     // 捕获了this->divisor
+     auto divisorCopy = divisor;
+     filters.emplace_back([divisorCopy](int value) { return value % divisorCopy == 0; });
+     // C++14 广义lambda捕获
+     filters.emplace_back([divisor=divisor](int value) { return value % divisor == 0; });
 }
 ~~~
 
 第二，给你一种捕获了某些变量的错觉
 ~~~cpp
 void addDivisorFilter(){
-	static auto divisor = 10;
-	// 实际上并没有捕获到divisor
-	filters.emplace_back([=](int value){ return value % divisor == 0; });
-	++divisor;
+     static auto divisor = 10;
+     // 实际上并没有捕获到divisor
+     filters.emplace_back([=](int value){ return value % divisor == 0; });
+     ++divisor;
 };
 ~~~
 
@@ -1404,11 +1404,11 @@ auto func = [pw = std::make_unique<Widget>()]{ return pw->isValidated(); };
 ~~~cpp
 class IsVal{
 public:
-	using DataType = std::unique_ptr<Widget>;
-	explicit IsVal(DataType&& ptr): pw(std::move(ptr)) {}
-	bool operator()() const{ return pw->isValidated()}
+     using DataType = std::unique_ptr<Widget>;
+     explicit IsVal(DataType&& ptr): pw(std::move(ptr)) {}
+     bool operator()() const{ return pw->isValidated()}
 private:
-	DataType pw;
+     DataType pw;
 };
 
 auto func = IsVal(std::make_unique<Widget>());
@@ -1416,8 +1416,8 @@ auto func = IsVal(std::make_unique<Widget>());
 或者是采用绑定（见下一部分）
 ~~~cpp
 auto func = std::bind(
-	[](const std::unique_ptr<Widget>& pw){ return pw->isValidated() },
-	std::make_unique<Widget>()
+     [](const std::unique_ptr<Widget>& pw){ return pw->isValidated() },
+     std::make_unique<Widget>()
 );
 ~~~
 
@@ -1433,8 +1433,8 @@ std::vector<double> data;
 auto func = [data = std::move(data)]{/* uses of data */};
 // C++11
 auto func = std::bind(
-	[](const std::vector<double>& data) { /* uses of data */ },
-	std::move(data)
+     [](const std::vector<double>& data) { /* uses of data */ },
+     std::move(data)
 );
 ~~~
 
@@ -1447,8 +1447,8 @@ auto f = [](auto x) { return func(normalize(x)); };
 // lambda类似于下面一个类
 class SomeCompilerGeneratedClassName {
 public:
-	template<typename T>
-	auto operator()(T x) const { return func(normalize(x)); }
+     template<typename T>
+     auto operator()(T x) const { return func(normalize(x)); }
 };
 ~~~
 如果normalized区别对待左值和右值，这个lambda这样写是不合适的。第一，x要改成通用引用[条款24](#24)，第二，借助std::forward[条款25](#25)把x转发到normalized。
@@ -1472,17 +1472,17 @@ void setAlarm(Time t, Sound s, Duration d);
 
 // lambda
 auto setSoundL = [](Sound s) {
-	using namespace std::chrono;
-	using namespace std::literals;     // C++14支持时间后缀
-	setAlram(steady_clock::now() + 1h, s, 30s); 
+     using namespace std::chrono;
+     using namespace std::literals;     // C++14支持时间后缀
+     setAlram(steady_clock::now() + 1h, s, 30s); 
 };
 // bind1
 using namespace std::placeholders;
 auto setSoundB = std::bind(setAlarm, steady_clock::now() + 1h, _1, 30s);
 // bind2
 auto setSoundB = std::bind(setAlarm, 
-		// 在C++14，标准操作符模板的模板类型参数可以被省略
-		std::bind(std::plus<>(), steady_clock::now(), 1h),, _1, 30s);
+                    // 在C++14，标准操作符模板的模板类型参数可以被省略
+                    std::bind(std::plus<>(), steady_clock::now(), 1h),, _1, 30s);
 ~~~
 
 #### 2. 函数被重载时,bind会出错
@@ -1497,12 +1497,12 @@ auto setSoundB = std::bind(static_cast<SetAlarm3ParamType>(setAlarm),
 另一个例子
 ~~~cpp
 auto betweenL = [lowVal, highVal] (const auto& val)
-	{ return lowVal <= val && val <= highVal; };
+          { return lowVal <= val && val <= highVal; };
 
 using namespace std::placeholders;
 auto betweenB = std::bind(std::logical_and<>(),
-			  std::bind(std::less_equal<>(), lowVal, _1),
-			  std::bind(std::less_equal<>(), _1, highVal));
+                         std::bind(std::less_equal<>(), lowVal, _1),
+                         std::bind(std::less_equal<>(), _1, highVal));
 ~~~
 
 #### 3. bind只能通过引用传递
@@ -1516,8 +1516,8 @@ auto betweenB = std::bind(std::logical_and<>(),
 ~~~cpp
 class PolyWidget {
 public:
-	template<typename T>
-	void operator() (const T& param);
+     template<typename T>
+     void operator() (const T& param);
 };
 
 PolyWidget pw;
@@ -1535,8 +1535,8 @@ auto boundPW = [pw](const auto& param){ pw(param); }
 template<class T, class Allocator = allocator<T>>
 class vector {
 public:
-	void push_back(const T& x);
-	void push_back(T&& x);
+     void push_back(const T& x);
+     void push_back(T&& x);
 };
 
 template <class... Args>
